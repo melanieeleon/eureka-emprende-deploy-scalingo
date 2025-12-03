@@ -169,13 +169,15 @@ public class EmprendimientoController {
 
     @PutMapping("/{id}/activar")
     @PreAuthorize("hasRole('ADMINISTRADOR')")
-    public ResponseEntity<?> activarEmprendimiento(@PathVariable Integer id) {
+    public ResponseEntity<?> activarEmprendimiento(@PathVariable Integer id) throws Exception {
+        emprendimientoService.activarEmprendimiento(id);
         return ResponseEntity.ok().build();
     }
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMINISTRADOR')")
-    public ResponseEntity<?> eliminarEmprendimiento(@PathVariable Integer id) {
+    public ResponseEntity<?> eliminarEmprendimiento(@PathVariable Integer id) throws Exception {
+        emprendimientoService.inactivarEmprendimiento(id);
         return ResponseEntity.ok().build();
     }
 }

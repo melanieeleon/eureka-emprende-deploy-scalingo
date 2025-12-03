@@ -1,0 +1,18 @@
+package com.example.eureka.formulario.infrastructure.persistence;
+
+import com.example.eureka.domain.model.OpcionRespuesta;
+import com.example.eureka.domain.model.Opciones;
+import com.example.eureka.domain.model.Respuesta;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+import java.util.List;
+
+public interface OpcionRespuestaJpaRepository extends JpaRepository<OpcionRespuesta, Integer> {
+
+    @Override
+    List<OpcionRespuesta> findAll();
+
+    List<OpcionRespuesta> findAllByRespuesta(Respuesta respuesta);
+
+    List<OpcionRespuesta> findAllByOpciones(Opciones opciones);
+}

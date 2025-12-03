@@ -1,5 +1,6 @@
 package com.example.eureka.entrepreneurship.mappers;
 
+import com.example.eureka.auth.domain.Usuarios;
 import com.example.eureka.domain.model.*;
 import com.example.eureka.entrepreneurship.dto.shared.*;
 
@@ -37,6 +38,45 @@ public class EmprendimientoMapper {
         if (emprendimiento.getTiposEmprendimientos() != null) {
             dto.setTipoEmprendimientoId(emprendimiento.getTiposEmprendimientos().getId());
             dto.setNombreTipoEmprendimiento(emprendimiento.getTiposEmprendimientos().getSubTipo());
+        }
+
+        return dto;
+    }
+
+    public static Emprendimientos toDTOResponse(EmprendimientoResponseDTO emprendimiento) {
+        if (emprendimiento == null) return null;
+
+        Emprendimientos dto = new Emprendimientos();
+
+        dto.setId(emprendimiento.getId());
+        dto.setNombreComercial(emprendimiento.getNombreComercial());
+        dto.setAnioCreacion(emprendimiento.getAnioCreacion());
+        dto.setActivoEmprendimiento(emprendimiento.getActivoEmprendimiento());
+        dto.setAceptaDatosPublicos(emprendimiento.getAceptaDatosPublicos());
+        dto.setFechaCreacion(emprendimiento.getFechaCreacion());
+        dto.setFechaActualizacion(emprendimiento.getFechaActualizacion());
+        dto.setEstadoEmprendimiento(emprendimiento.getEstadoEmprendimiento());
+
+        // --- Relaciones ---
+        if(emprendimiento.getUsuarioId() != null){
+            Usuarios user = new Usuarios();
+            user.setId(emprendimiento.getUsuarioId());
+            user.setNombre(emprendimiento.getNombreUsuario());
+            dto.setUsuarios(user);
+        }
+
+        if(emprendimiento.getCiudadId() != null){
+            Ciudades ciudad = new Ciudades();
+            ciudad.setId(emprendimiento.getCiudadId());
+            ciudad.setNombreCiudad(emprendimiento.getNombreCiudad());
+            dto.setCiudades(ciudad);
+        }
+
+        if(emprendimiento.getTipoEmprendimientoId() != null){
+            TiposEmprendimientos tipoEmprendimiento = new TiposEmprendimientos();
+            tipoEmprendimiento.setId(emprendimiento.getTipoEmprendimientoId());
+            tipoEmprendimiento.setSubTipo(emprendimiento.getNombreTipoEmprendimiento());
+            dto.setTiposEmprendimientos(tipoEmprendimiento);
         }
 
         return dto;
