@@ -7,6 +7,7 @@ import com.example.eureka.articulo.infrastructure.dto.response.ArticuloPublicoDT
 import com.example.eureka.articulo.infrastructure.dto.response.ArticuloResponseDTO;
 import com.example.eureka.articulo.infrastructure.dto.response.TagDTO;
 import com.example.eureka.articulo.aplication.service.ArticuloServiceImpl;
+import com.example.eureka.articulo.infrastructure.specification.ValidationGroups;
 import com.example.eureka.domain.enums.EstadoArticulo;
 import com.example.eureka.shared.util.PageResponseDTO;
 import com.example.eureka.shared.util.SecurityUtils;
@@ -19,6 +20,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
@@ -97,7 +99,7 @@ public class ArticuloController {
     @PostMapping("/articulos/crear")
     @PreAuthorize("hasRole('ADMINISTRADOR')")
     public ResponseEntity<ArticuloResponseDTO> crearArticulo(
-            @Valid @ModelAttribute ArticuloRequestDTO request) { // ⬅️ Cambiar aquí
+            @Validated(ValidationGroups.OnCreate.class) @ModelAttribute ArticuloRequestDTO request) { // ⬅️ Cambiar aquí
         Integer idUsuario = securityUtils.getIdUsuarioAutenticado();
         ArticuloResponseDTO articulo = blogService.crearArticulo(request, idUsuario);
         return ResponseEntity.status(HttpStatus.CREATED).body(articulo);
@@ -107,7 +109,7 @@ public class ArticuloController {
     @PreAuthorize("hasRole('ADMINISTRADOR')")
     public ResponseEntity<ArticuloResponseDTO> editarArticulo(
             @PathVariable Integer idArticulo,
-            @Valid @ModelAttribute ArticuloRequestDTO request) { // ⬅️ Cambiar aquí
+            @Validated(ValidationGroups.OnUpdate.class) @ModelAttribute ArticuloRequestDTO request) { // ⬅️ Cambiar aquí
         Integer idUsuario = securityUtils.getIdUsuarioAutenticado();
         ArticuloResponseDTO articulo = blogService.editarArticulo(idArticulo, request, idUsuario);
         return ResponseEntity.ok(articulo);

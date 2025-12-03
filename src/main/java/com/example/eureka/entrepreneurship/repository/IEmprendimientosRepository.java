@@ -7,6 +7,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.List;
 
 @Repository
@@ -59,4 +61,7 @@ public interface IEmprendimientosRepository extends JpaRepository<Emprendimiento
     List<Emprendimientos> findByEstadoEmprendimiento(@Param("estadoEmprendimiento") String estadoEmprendimiento);
 
     List<Emprendimientos> findByUsuariosAndEstadoEmprendimientoEquals(Usuarios usuarios, String estadoEmprendimiento);
+
+    Emprendimientos findByFechaCreacionIsBetweenAndId(LocalDateTime fechaCreacionAfter, LocalDateTime fechaCreacionBefore, Integer id);
+
 }
