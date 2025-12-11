@@ -2,8 +2,8 @@ package com.example.eureka.event.infrastructure.controller;
 
 import com.example.eureka.event.infrastructure.dto.response.EventoResponseDTO;
 import com.example.eureka.event.infrastructure.dto.response.EventoEmprendedorDTO;
-import com.example.eureka.domain.enums.EstadoEvento;
-import com.example.eureka.domain.enums.TipoEvento;
+import com.example.eureka.shared.enums.EstadoEvento;
+import com.example.eureka.shared.enums.TipoEvento;
 import com.example.eureka.event.infrastructure.dto.response.EventoAdminDTO;
 import com.example.eureka.event.infrastructure.dto.response.EventoPublicoDTO;
 import com.example.eureka.event.infrastructure.dto.request.EventoRequestDTO;

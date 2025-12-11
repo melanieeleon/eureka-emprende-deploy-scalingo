@@ -1,9 +1,9 @@
 package com.example.eureka.event.domain.model;
 
-import com.example.eureka.domain.enums.EstadoEvento;
-import com.example.eureka.domain.enums.TipoEvento;
-import com.example.eureka.domain.model.Emprendimientos;
-import com.example.eureka.domain.model.Multimedia;
+import com.example.eureka.shared.enums.EstadoEvento;
+import com.example.eureka.shared.enums.TipoEvento;
+import com.example.eureka.entrepreneurship.domain.model.Emprendimientos;
+import com.example.eureka.entrepreneurship.domain.model.Multimedia;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;

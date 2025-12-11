@@ -1,7 +1,7 @@
 package com.example.eureka.event.port.out;
 
-import com.example.eureka.domain.enums.EstadoEvento;
-import com.example.eureka.domain.enums.TipoEvento;
+import com.example.eureka.shared.enums.EstadoEvento;
+import com.example.eureka.shared.enums.TipoEvento;
 import com.example.eureka.event.domain.model.Eventos;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;  // ✅ CORRECTO

@@ -3,7 +3,7 @@ package com.example.eureka.articulo.infrastructure.persistence;
 import com.example.eureka.articulo.domain.model.ArticulosBlog;
 import com.example.eureka.articulo.infrastructure.specification.ArticuloSpecification;
 import com.example.eureka.articulo.port.out.IArticuloRepository;
-import com.example.eureka.domain.enums.EstadoArticulo;
+import com.example.eureka.shared.enums.EstadoArticulo;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;

@@ -1,7 +1,7 @@
 package com.example.eureka.formulario.infrastructure.dto.response;
 
-import com.example.eureka.domain.model.Opciones;
-import com.example.eureka.domain.model.Respuesta;
+import com.example.eureka.formulario.domain.model.Opciones;
+import com.example.eureka.autoevaluacion.domain.model.Respuesta;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;

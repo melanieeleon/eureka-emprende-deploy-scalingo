@@ -1,7 +1,7 @@
 package com.example.eureka.event.infrastructure.dto.response;
 
-import com.example.eureka.domain.enums.EstadoEvento;
-import com.example.eureka.domain.enums.TipoEvento;
+import com.example.eureka.shared.enums.EstadoEvento;
+import com.example.eureka.shared.enums.TipoEvento;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

@@ -1,6 +1,6 @@
 package com.example.eureka.auth.infrastructure.dto;
 
-import com.example.eureka.domain.enums.Genero;
+import com.example.eureka.shared.enums.Genero;
 import lombok.Data;
 
 import java.time.LocalDateTime;

@@ -1,6 +1,6 @@
 package com.example.eureka.articulo.infrastructure.dto.response;
 
-import com.example.eureka.domain.enums.EstadoArticulo;
+import com.example.eureka.shared.enums.EstadoArticulo;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

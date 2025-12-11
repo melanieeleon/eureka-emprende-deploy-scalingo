@@ -8,7 +8,7 @@ import com.example.eureka.articulo.infrastructure.dto.response.ArticuloResponseD
 import com.example.eureka.articulo.infrastructure.dto.response.TagDTO;
 import com.example.eureka.articulo.aplication.service.ArticuloServiceImpl;
 import com.example.eureka.articulo.infrastructure.specification.ValidationGroups;
-import com.example.eureka.domain.enums.EstadoArticulo;
+import com.example.eureka.shared.enums.EstadoArticulo;
 import com.example.eureka.shared.util.PageResponseDTO;
 import com.example.eureka.shared.util.SecurityUtils;
 import jakarta.validation.Valid;

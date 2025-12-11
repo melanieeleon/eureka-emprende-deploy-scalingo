@@ -1,7 +1,6 @@
 package com.example.eureka.formulario.infrastructure.persistence;
 
-import com.example.eureka.domain.model.Opciones;
-import com.example.eureka.formulario.domain.model.Opcion;
+import com.example.eureka.formulario.domain.model.Opciones;
 import com.example.eureka.formulario.port.out.IOpcionRepository;
 import org.springframework.stereotype.Component;
 

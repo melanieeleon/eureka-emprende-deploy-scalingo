@@ -1,7 +1,7 @@
 package com.example.eureka.articulo.domain.model;
 
-import com.example.eureka.domain.enums.EstadoArticulo;
-import com.example.eureka.domain.model.Multimedia;
+import com.example.eureka.shared.enums.EstadoArticulo;
+import com.example.eureka.entrepreneurship.domain.model.Multimedia;
 import com.example.eureka.auth.domain.Usuarios;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;

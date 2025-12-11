@@ -1,6 +1,6 @@
 package com.example.eureka.event.infrastructure.dto.request;
 
-import com.example.eureka.domain.enums.TipoEvento;
+import com.example.eureka.shared.enums.TipoEvento;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;

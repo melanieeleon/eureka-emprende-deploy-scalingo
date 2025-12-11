@@ -1,7 +1,7 @@
 package com.example.eureka.event.infrastructure.scheduler;
 
 import com.example.eureka.event.port.out.IEventosRepository;
-import com.example.eureka.domain.enums.EstadoEvento;
+import com.example.eureka.shared.enums.EstadoEvento;
 import com.example.eureka.event.domain.model.Eventos;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

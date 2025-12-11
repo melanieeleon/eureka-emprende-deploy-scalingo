@@ -1,7 +1,7 @@
 package com.example.eureka.articulo.infrastructure.dto.request;
 
 import com.example.eureka.articulo.infrastructure.specification.ValidationGroups;
-import com.example.eureka.domain.enums.EstadoArticulo;
+import com.example.eureka.shared.enums.EstadoArticulo;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;

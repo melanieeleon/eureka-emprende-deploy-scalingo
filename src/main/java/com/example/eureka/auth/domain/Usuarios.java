@@ -1,7 +1,6 @@
 package com.example.eureka.auth.domain;
 
-import com.example.eureka.domain.enums.Genero;
-import com.example.eureka.domain.model.Roles;
+import com.example.eureka.shared.enums.Genero;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;

@@ -1,6 +1,6 @@
 package com.example.eureka.auth.infrastructure.dto;
 
-import com.example.eureka.entrepreneurship.dto.shared.EmprendimientoDTO;
+import com.example.eureka.entrepreneurship.infrastructure.dto.shared.EmprendimientoDTO;
 import lombok.Data;
 
 import java.time.LocalDateTime;

@@ -5,7 +5,7 @@ import com.example.eureka.articulo.infrastructure.dto.response.ArticuloAdminDTO;
 import com.example.eureka.articulo.infrastructure.dto.response.ArticuloPublicoDTO;
 import com.example.eureka.articulo.infrastructure.dto.response.ArticuloResponseDTO;
 import com.example.eureka.articulo.infrastructure.dto.response.TagDTO;
-import com.example.eureka.domain.enums.EstadoArticulo;
+import com.example.eureka.shared.enums.EstadoArticulo;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 

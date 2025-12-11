@@ -1,6 +1,6 @@
 package com.example.eureka.articulo.infrastructure.specification;
 
-import com.example.eureka.domain.enums.EstadoArticulo;
+import com.example.eureka.shared.enums.EstadoArticulo;
 import com.example.eureka.articulo.domain.model.ArticulosBlog;
 import com.example.eureka.articulo.domain.model.TagsBlog;
 import jakarta.persistence.criteria.Join;
