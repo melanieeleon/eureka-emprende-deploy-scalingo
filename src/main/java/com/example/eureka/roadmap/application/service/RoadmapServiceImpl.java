@@ -1,6 +1,8 @@
 package com.example.eureka.roadmap.application.service;
 
 import com.example.eureka.entrepreneurship.domain.model.Emprendimientos;
+import com.example.eureka.entrepreneurship.domain.model.TiposDescripcionEmprendimiento;
+import com.example.eureka.entrepreneurship.port.out.IEmprendimientosDescripcionRepository;
 import com.example.eureka.roadmap.domain.Roadmap;
 import com.example.eureka.entrepreneurship.port.out.IEmprendimientosRepository;
 import com.example.eureka.roadmap.infrastructure.dto.RoadmapDTO;
@@ -13,6 +15,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -21,6 +25,7 @@ public class RoadmapServiceImpl implements RoadmapService {
     private final IRoadmapRepository roadmapRepository;
     private final GPTRoadmap gptRoadmap;
     private final IEmprendimientosRepository  emprendimientosRepository;
+    private final IEmprendimientosDescripcionRepository emprendimientosDescripcionRepository;
 
     @Override
     public Roadmap findByIdCompany(Integer id) {
@@ -37,6 +42,27 @@ public class RoadmapServiceImpl implements RoadmapService {
     public Roadmap save(RoadmapDTO roadmap) {
 
         Emprendimientos emp = emprendimientosRepository.findById(roadmap.getIdEmprendimiento()).orElse(null);
+        List<TiposDescripcionEmprendimiento> descripcionEmprendimientos = emprendimientosDescripcionRepository.findByEmprendimientoId(roadmap.getIdEmprendimiento());
+        String historia = "";
+        String objetivo = "";
+        for(TiposDescripcionEmprendimiento e: descripcionEmprendimientos) {
+            if(e.getTipoDescripcion().equals("HISTORIA")){
+                historia += " "+e.getTipoDescripcion();
+            }
+            if(e.getTipoDescripcion().equals("PROPOSITO")){
+                objetivo += " "+e.getTipoDescripcion();
+            }
+            if (e.getTipoDescripcion().equals("DIFERENCIAL")){
+                objetivo += " "+e.getTipoDescripcion();
+            }
+            if (e.getTipoDescripcion().equals("PUBLICO OBJETIVO")){
+                objetivo += " " + e.getTipoDescripcion();
+            }
+
+
+        }
+        roadmap.setHistoria(historia);
+        roadmap.setObjetivo(objetivo);
         Roadmap rm = new Roadmap();
         if(!roadmapRepository.existsByEmprendimiento(emp)){
             String contenido = gptRoadmap.generarRoadmap(

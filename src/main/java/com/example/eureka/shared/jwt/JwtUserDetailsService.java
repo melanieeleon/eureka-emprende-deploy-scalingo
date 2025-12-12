@@ -2,6 +2,7 @@ package com.example.eureka.shared.jwt;
 
 import com.example.eureka.auth.domain.Usuarios;
 import com.example.eureka.auth.port.out.IUserRepository;
+import com.example.eureka.shared.util.CustomUserDetails;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.GrantedAuthority;
@@ -19,6 +20,37 @@ import java.util.List;
 @RequiredArgsConstructor
 @Slf4j
 public class JwtUserDetailsService implements UserDetailsService {
+
+    private final IUserRepository repo;
+
+    @Override
+    @Transactional(readOnly = true)
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        Usuarios usuarios = repo.obtenerUsuarioCorreo(username);
+
+        if (usuarios == null) {
+            throw new UsernameNotFoundException("User not found: " + username);
+        }
+
+        List<GrantedAuthority> roles = new ArrayList<>();
+
+        if (usuarios.getRol() != null) {
+            String roleName = usuarios.getRol().getNombre();
+            if (!roleName.startsWith("ROLE_")) {
+                roleName = "ROLE_" + roleName;
+            }
+            roles.add(new SimpleGrantedAuthority(roleName));
+        } else {
+            throw new UsernameNotFoundException("Usuario sin rol asignado: " + username);
+        }
+
+        // Devolver CustomUserDetails en lugar de User
+        return new CustomUserDetails(usuarios, roles);
+    }
+}
+
+
+/*public class JwtUserDetailsService implements UserDetailsService {
 
     private final IUserRepository repo;
 
@@ -57,7 +89,7 @@ public class JwtUserDetailsService implements UserDetailsService {
                 roles
         );
     }
-}
+}*/
 
 /*
 SUPOSICIONES:

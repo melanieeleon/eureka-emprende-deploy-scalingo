@@ -8,16 +8,19 @@ import com.example.eureka.entrepreneurship.infrastructure.dto.request.Emprendimi
 import com.example.eureka.entrepreneurship.infrastructure.dto.shared.EmprendimientoResponseDTO;
 import com.example.eureka.entrepreneurship.port.in.EmprendimientoService;
 import com.example.eureka.entrepreneurship.domain.model.SolicitudAprobacion;
+import com.example.eureka.shared.util.CustomUserDetails;
 import com.example.eureka.shared.util.PageResponseDTO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.Map;
@@ -107,10 +110,12 @@ public class EmprendimientoController {
     /**
      * Crear estructura de emprendimiento (BORRADOR o enviar directamente)
      */
-    @PostMapping()
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> crearEmprendimiento(
-            @RequestBody EmprendimientoRequestDTO request) {
+            @RequestPart("data") EmprendimientoRequestDTO request,
+            @RequestPart(value = "imagenes", required = false) List<MultipartFile> imagenes) {
         try {
+            request.setImagenes(imagenes);
             Integer id = emprendimientoService.estructuraEmprendimiento(request);
             return ResponseEntity.status(HttpStatus.CREATED)
                     .body(Map.of(
@@ -152,7 +157,8 @@ public class EmprendimientoController {
     @PostMapping("/{id}/enviar-aprobacion")
     public ResponseEntity<?> enviarParaAprobacion(
             @PathVariable Integer id,
-            @AuthenticationPrincipal Usuarios usuario) {
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
+        Usuarios usuario = userDetails.getUsuario();
         try {
             SolicitudAprobacion solicitud = emprendimientoService.enviarParaAprobacion(id, usuario);
             return ResponseEntity.ok(Map.of(

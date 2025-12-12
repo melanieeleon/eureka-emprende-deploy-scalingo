@@ -147,7 +147,22 @@ public class EmprendimientoServiceImpl implements EmprendimientoService {
 
         for (int i = 0; i < archivos.size(); i++) {
             MultipartFile archivo = archivos.get(i);
-            String tipo = (tipos != null && i < tipos.size()) ? tipos.get(i) : "GALERIA";
+            String tipo = "GALERIA";
+            for(String tp: tipos){
+                String nombre = archivo.getOriginalFilename();
+                if (nombre == null || !nombre.contains("-")) {
+                    continue;
+                }
+
+                // Separar antes del guion
+                String prefijo = nombre.substring(0, nombre.indexOf("-"));  // Ej: "Portada"
+
+                if (tipo.equalsIgnoreCase(prefijo)) {
+                    System.out.println("Archivo " + nombre + " es del tipo: " + tipo);
+                    tipo = tp;
+                    break;
+                }
+            }
 
             try {
                 // 1. Subir archivo a S3
@@ -853,14 +868,14 @@ public class EmprendimientoServiceImpl implements EmprendimientoService {
 
     @Override
     public void inactivarEmprendimiento(Integer id) throws Exception {
-        Emprendimientos emprendimientos = emprendimientosRepository.findById(id).orElseThrow(EntityNotFoundException::new);
+        Emprendimientos emprendimientos = emprendimientosRepository.findById(id).orElseThrow(() -> new EntityNotFoundException());
         emprendimientos.setActivoEmprendimiento(false);
         emprendimientosRepository.save(emprendimientos);
     }
 
     @Override
     public void activarEmprendimiento(Integer id) throws Exception {
-        Emprendimientos emprendimientos = emprendimientosRepository.findById(id).orElseThrow(EntityNotFoundException::new);
+        Emprendimientos emprendimientos = emprendimientosRepository.findById(id).orElseThrow(() -> new EntityNotFoundException());
         emprendimientos.setActivoEmprendimiento(true);
         emprendimientosRepository.save(emprendimientos);
     }

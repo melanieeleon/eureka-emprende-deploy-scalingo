@@ -5,6 +5,7 @@ import com.example.eureka.entrepreneurship.infrastructure.dto.shared.Emprendimie
 import com.example.eureka.entrepreneurship.infrastructure.dto.shared.VistaEmprendedorDTO;
 import com.example.eureka.entrepreneurship.port.out.IEmprendimientosRepository;
 import com.example.eureka.entrepreneurship.port.in.EmprendimientoService;
+import com.example.eureka.shared.util.CustomUserDetails;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -32,8 +33,10 @@ public class MiEmprendimientoController {
      * Obtener todos los emprendimientos de un usuario autenticado
      */
     @GetMapping("/mis-emprendimientos")
-    public ResponseEntity<?> obtenerEmprendimientosPorUsuario(@AuthenticationPrincipal Usuarios usuario) {
+    public ResponseEntity<?> obtenerEmprendimientosPorUsuario(@AuthenticationPrincipal CustomUserDetails userDetails) {
         try {
+            Usuarios usuario = userDetails.getUsuario();
+
             List<EmprendimientoResponseDTO> emprendimientos = emprendimientoService.obtenerEmprendimientosPorUsuario(usuario);
             return ResponseEntity.ok(emprendimientos);
         } catch (Exception e) {
@@ -49,7 +52,8 @@ public class MiEmprendimientoController {
     @GetMapping("/{id}/mi-emprendimiento")
     public ResponseEntity<?> obtenerMiEmprendimiento(
             @PathVariable Integer id,
-            @AuthenticationPrincipal Usuarios usuario) {
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
+        Usuarios usuario = userDetails.getUsuario();
         try {
             var emprendimientoOpt = emprendimientosRepository.findById(id);
             if (emprendimientoOpt.isEmpty()) {

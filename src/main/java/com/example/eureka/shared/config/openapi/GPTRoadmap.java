@@ -22,20 +22,26 @@ public class GPTRoadmap {
     public String generarRoadmap(String historia, String objetivo) {
 
         String prompt = """
-            Genera un roadmap de 5 pasos para un emprendimiento.
-            Pasos: Idea, Validación, Planificación, Desarrollo, Lanzamiento.
-            Historia: %s
-            Objetivo: %s
+    Genera un roadmap de 5 fases para un emprendimiento.
+    Fases: Idea, Validación, Planificación, Desarrollo, Lanzamiento.
+    
+    Por cada fase genera de 1 a 6 ideas breves y accionables.
+    
+    Historia: %s
+    Objetivo: %s
 
-            Responde exclusivamente en JSON con el formato:
-            [
-                {"fase": "Idea", "descripcion": "..."},
-                {"fase": "Validación", "descripcion": "..."},
-                {"fase": "Planificación", "descripcion": "..."},
-                {"fase": "Desarrollo", "descripcion": "..."},
-                {"fase": "Lanzamiento", "descripcion": "..."}
-            ]
-        """.formatted(historia, objetivo);
+    Responde exclusivamente en JSON con el formato EXACTO:
+    [
+        {"fase": "Idea", "ideas": ["Idea 1", "Idea 2", "..."]},
+        {"fase": "Validación", "ideas": ["Idea 1", "Idea 2", "..."]},
+        {"fase": "Planificación", "ideas": ["Idea 1", "Idea 2", "..."]},
+        {"fase": "Desarrollo", "ideas": ["Idea 1", "Idea 2", "..."]},
+        {"fase": "Lanzamiento", "ideas": ["Idea 1", "Idea 2", "..."]}
+    ]
+
+    No agregues texto fuera del JSON.
+    """.formatted(historia, objetivo);
+
 
         Map<String, Object> request = Map.of(
                 "model", "gpt-4o-mini",

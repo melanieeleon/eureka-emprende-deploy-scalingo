@@ -5,6 +5,7 @@ import com.example.eureka.entrepreneurship.infrastructure.dto.shared.SolicitudAp
 import com.example.eureka.entrepreneurship.infrastructure.dto.shared.VistaEmprendedorDTO;
 import com.example.eureka.entrepreneurship.aplication.service.SolicitudAprobacionService;
 import com.example.eureka.auth.domain.Usuarios;
+import com.example.eureka.shared.util.CustomUserDetails;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -31,8 +32,8 @@ public class SolicitudAprobacionController {
     @GetMapping("/emprendimiento/{id}/mi-vista")
     public ResponseEntity<VistaEmprendedorDTO> obtenerMiVista(
             @PathVariable Integer id,
-            @AuthenticationPrincipal Usuarios usuario) {
-
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
+        Usuarios usr = userDetails.getUsuario();
         log.info("Obteniendo vista para emprendimiento: {}", id);
         VistaEmprendedorDTO vista = solicitudService.obtenerVistaEmprendedor(id);
         return ResponseEntity.ok(vista);
@@ -45,7 +46,8 @@ public class SolicitudAprobacionController {
     public ResponseEntity<?> enviarParaAprobacion(
             @PathVariable Integer id,
             @RequestBody EmprendimientoCompletoDTO datosCompletos,
-            @AuthenticationPrincipal Usuarios usuario) {
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
+        Usuarios usuario = userDetails.getUsuario();
 
         try {
             log.info("Enviando solicitud de emprendimiento: {}", id);
@@ -72,8 +74,8 @@ public class SolicitudAprobacionController {
     public ResponseEntity<?> modificarYReenviar(
             @PathVariable Integer solicitudId,
             @RequestBody EmprendimientoCompletoDTO datosActualizados,
-            @AuthenticationPrincipal Usuarios usuario) {
-
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
+        Usuarios usuario = userDetails.getUsuario();
         try {
             log.info("Modificando solicitud: {}", solicitudId);
             solicitudService.modificarYReenviar(solicitudId, datosActualizados, usuario);
@@ -132,8 +134,8 @@ public class SolicitudAprobacionController {
     @PostMapping("/admin/{solicitudId}/aprobar")
     public ResponseEntity<?> aprobarSolicitud(
             @PathVariable Integer solicitudId,
-            @AuthenticationPrincipal Usuarios admin) {
-
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
+        Usuarios admin = userDetails.getUsuario();
         try {
             log.info("Aprobando solicitud: {}", solicitudId);
             solicitudService.aprobarSolicitud(solicitudId, admin);
@@ -156,8 +158,8 @@ public class SolicitudAprobacionController {
     public ResponseEntity<?> rechazarSolicitud(
             @PathVariable Integer solicitudId,
             @RequestBody Map<String, String> body,
-            @AuthenticationPrincipal Usuarios admin) {
-
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
+        Usuarios admin = userDetails.getUsuario();
         String motivo = body.get("motivo");
         if (motivo == null || motivo.isBlank()) {
             return ResponseEntity.badRequest()
@@ -186,7 +188,8 @@ public class SolicitudAprobacionController {
     public ResponseEntity<?> enviarObservaciones(
             @PathVariable Integer solicitudId,
             @RequestBody Map<String, String> body,
-            @AuthenticationPrincipal Usuarios admin) {
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
+        Usuarios admin = userDetails.getUsuario();
 
         String observaciones = body.get("observaciones");
         if (observaciones == null || observaciones.isBlank()) {
