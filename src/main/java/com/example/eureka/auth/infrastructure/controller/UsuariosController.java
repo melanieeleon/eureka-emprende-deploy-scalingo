@@ -6,7 +6,10 @@ import com.example.eureka.auth.domain.Usuarios;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Objects;
 
 @RestController
 @RequestMapping("/v1/usuarios")
@@ -50,6 +53,13 @@ public class UsuariosController {
         }
 
         usuario.setId(id);
+
+        if (usuario.getContrasena()!= null && !usuario.getContrasena().trim().isEmpty()) {
+            usuario.setContrasena(BCrypt.hashpw(usuario.getContrasena(), BCrypt.gensalt()));
+
+        } else {
+            usuario.setContrasena(usuarioAutenticado.getContrasena());
+        }
         return usuariosServiceImpl.actualizarUsuario(usuario);
     }
 
