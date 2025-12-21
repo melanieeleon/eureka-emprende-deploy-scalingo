@@ -94,12 +94,13 @@ public class EmprendimientoController {
     public ResponseEntity<PageResponseDTO<EmprendimientoListadoResponseDTO>> obtenerEmprendimientosFiltrado(
             @RequestParam(value = "nombre", required = false) String nombre,
             @RequestParam(value = "tipo", required = false) String tipo,
+            @RequestParam(value = "subtipo",  required = false) String subtipo,   // Servicio / Producto
             @RequestParam(value = "categoria", required = false) String categoria,
             @RequestParam(value = "ciudad", required = false) String ciudad,
             @RequestParam(value = "page", required = false, defaultValue = "0") int page,
             @RequestParam(value = "size", required = false, defaultValue = "10") int size) {
         var pageable = PageRequest.of(page, size);
-        var pageResult = emprendimientoService.obtenerEmprendimientosFiltrado(nombre, tipo, categoria, ciudad, pageable);
+        var pageResult = emprendimientoService.obtenerEmprendimientosFiltrado(nombre, tipo, subtipo, categoria, ciudad, pageable);
         return ResponseEntity.ok(PageResponseDTO.fromPage(pageResult));
     }
 

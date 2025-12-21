@@ -39,7 +39,7 @@ public interface EmprendimientoService {
     SolicitudAprobacion enviarParaAprobacion(Integer emprendimientoId, Usuarios usuario);
     VistaEmprendedorDTO obtenerVistaEmprendedor(Integer emprendimientoId);
 
-    List<EmprendimientoResponseDTO> obtenerEmprendimientosPorUsuario(Usuarios usuario);
+    Page<EmprendimientoListadoResponseDTO> obtenerEmprendimientosPorUsuario(Usuarios usuario, Pageable pageable);
 
     /**
      * Obtener emprendimientos filtrados por nombre, tipo, categoría y ciudad
@@ -54,7 +54,7 @@ public interface EmprendimientoService {
     /**
      * Obtener emprendimientos filtrados por nombre, tipo, categoría y ciudad, paginado
      */
-    Page<EmprendimientoListadoResponseDTO> obtenerEmprendimientosFiltrado(String nombre, String tipo, String categoria, String ciudad, Pageable pageable);
+    Page<EmprendimientoListadoResponseDTO> obtenerEmprendimientosFiltrado(String nombre, String tipo, String subtipo, String categoria, String ciudad, Pageable pageable);
 
     void inactivarEmprendimiento(Integer id) throws Exception;
 

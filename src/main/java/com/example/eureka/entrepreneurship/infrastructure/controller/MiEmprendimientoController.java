@@ -1,13 +1,17 @@
 package com.example.eureka.entrepreneurship.infrastructure.controller;
 
 import com.example.eureka.auth.domain.Usuarios;
+import com.example.eureka.entrepreneurship.infrastructure.dto.response.EmprendimientoListadoResponseDTO;
 import com.example.eureka.entrepreneurship.infrastructure.dto.shared.EmprendimientoResponseDTO;
 import com.example.eureka.entrepreneurship.infrastructure.dto.shared.VistaEmprendedorDTO;
 import com.example.eureka.entrepreneurship.port.out.IEmprendimientosRepository;
 import com.example.eureka.entrepreneurship.port.in.EmprendimientoService;
 import com.example.eureka.shared.util.CustomUserDetails;
+import com.example.eureka.shared.util.PageResponseDTO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -33,12 +37,19 @@ public class MiEmprendimientoController {
      * Obtener todos los emprendimientos de un usuario autenticado
      */
     @GetMapping("/mis-emprendimientos")
-    public ResponseEntity<?> obtenerEmprendimientosPorUsuario(@AuthenticationPrincipal CustomUserDetails userDetails) {
+    public ResponseEntity<?> obtenerEmprendimientosPorUsuario(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            Pageable pageable) {
         try {
             Usuarios usuario = userDetails.getUsuario();
 
-            List<EmprendimientoResponseDTO> emprendimientos = emprendimientoService.obtenerEmprendimientosPorUsuario(usuario);
-            return ResponseEntity.ok(emprendimientos);
+            Page<EmprendimientoListadoResponseDTO> page =
+                    emprendimientoService.obtenerEmprendimientosPorUsuario(usuario, pageable);
+
+            PageResponseDTO<EmprendimientoListadoResponseDTO> response =
+                    PageResponseDTO.fromPage(page);
+
+            return ResponseEntity.ok(response);
         } catch (Exception e) {
             log.error("Error al obtener emprendimientos del usuario: {}", e.getMessage(), e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -46,9 +57,8 @@ public class MiEmprendimientoController {
         }
     }
 
-    /**
-     * Obtener mi emprendimiento (emprendedor - incluye datos pendientes si existen)
-     */
+
+
     @GetMapping("/{id}/mi-emprendimiento")
     public ResponseEntity<?> obtenerMiEmprendimiento(
             @PathVariable Integer id,

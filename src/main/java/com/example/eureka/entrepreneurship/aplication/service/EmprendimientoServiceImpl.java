@@ -39,6 +39,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -551,48 +552,54 @@ public class EmprendimientoServiceImpl implements EmprendimientoService {
     }
 
     @Override
-    public List<EmprendimientoResponseDTO> obtenerEmprendimientosPorUsuario(Usuarios usuario) {
-        List<Emprendimientos> lista = emprendimientosRepository.findByUsuarios(usuario);
-        return lista.stream().map(emp -> {
-            EmprendimientoResponseDTO dto = EmprendimientoMapper.toResponseDTO(emp);
-            dto.setCategorias(EmprendimientoMapper.toCategoriaDTOList(
-                    emprendimientoCategoriasRepository.findEmprendimientosPorCategoria(emp.getId())
-            ));
-            dto.setDescripciones(EmprendimientoMapper.toDescripcionDTOList(
-                    emprendimientosDescripcionRepository.findByEmprendimientoId(emp.getId())
-            ));
-            dto.setPresenciasDigitales(EmprendimientoMapper.toPresenciaDigitalDTOList(
-                    emprendimientoPresenciaDigitalRepository.findByEmprendimientoId(emp.getId())
-            ));
-            dto.setMetricas(EmprendimientoMapper.toMetricasDTOList(
-                    emprendimientoMetricaRepository.findByEmprendimientoId(emp.getId())
-            ));
-            dto.setDeclaracionesFinales(EmprendimientoMapper.toDeclaracionesDTOList(
-                    emprendimientoDeclaracionesRepository.findByEmprendimientoId(emp.getId())
-            ));
-            dto.setParticipacionesComunidad(EmprendimientoMapper.toParticipacionDTOList(
-                    emprendimientoParticicipacionComunidadRepository.findByEmprendimientoIdFetchOpcion(emp.getId())
-            ));
-            dto.setInformacionRepresentante(EmprendimientoMapper.toRepresentanteDTO(
-                    informacionRepresentanteRepository.findFirstByEmprendimientoId(emp.getId())
-            ));
-            dto.setMultimedia(obtenerMultimediaPorEmprendimiento(emp.getId()));
-            return dto;
-        }).collect(Collectors.toList());
+    public Page<EmprendimientoListadoResponseDTO> obtenerEmprendimientosPorUsuario(
+            Usuarios usuario, Pageable pageable) {
+
+        Page<EmprendimientoListadoResponseDTO> page =
+                emprendimientosRepository.findByUsuarioListado(usuario, pageable);
+
+        page.getContent().forEach(dto -> {
+            Integer idEmprendimiento = dto.getIdEmprendimiento();
+
+            var ecs = emprendimientoCategoriasRepository.findByEmprendimientoIdWithCategoria(idEmprendimiento);
+            dto.setCategorias(
+                    ecs.stream()
+                            .map(ec -> new CategoriaListadoDTO(
+                                    ec.getCategoria().getId(),
+                                    ec.getCategoria().getNombre()
+                            ))
+                            .toList()
+            );
+
+            var ems = emprendimientoMultimediaRepository.findByEmprendimientoId(idEmprendimiento);
+            dto.setMultimedia(
+                    ems.stream()
+                            .map(em -> new MultimediaListadoDTO(
+                                    em.getMultimedia().getNombreActivo(),
+                                    em.getMultimedia().getUrlArchivo()
+                            ))
+                            .toList()
+            );
+        });
+
+        return page;
     }
+
+
 
     @Override
     public Page<EmprendimientoListadoResponseDTO> obtenerEmprendimientosFiltrado(
-            String nombre, String tipo, String categoria, String ciudad, Pageable pageable) {
+            String nombre, String tipo, String subtipo, String categoria, String ciudad, Pageable pageable) {
 
         String nombreParam = (nombre != null && !nombre.trim().isEmpty()) ? nombre.trim() : null;
         String tipoParam = (tipo != null && !tipo.trim().isEmpty()) ? tipo.trim() : null;
+        String subtipoParam  = (subtipo  != null && !subtipo.trim().isEmpty())  ? subtipo.trim()  : null;
         String categoriaParam = (categoria != null && !categoria.trim().isEmpty()) ? categoria.trim() : null;
         String ciudadParam = (ciudad != null && !ciudad.trim().isEmpty()) ? ciudad.trim() : null;
 
         Page<EmprendimientoListadoResponseDTO> page =
                 emprendimientosRepository.findByFiltrosListado(
-                        nombreParam, tipoParam, categoriaParam, ciudadParam, pageable);
+                        nombreParam, tipoParam,subtipoParam, categoriaParam, ciudadParam, pageable);
 
         page.getContent().forEach(dto -> {
             Integer idEmprendimiento = dto.getIdEmprendimiento();
