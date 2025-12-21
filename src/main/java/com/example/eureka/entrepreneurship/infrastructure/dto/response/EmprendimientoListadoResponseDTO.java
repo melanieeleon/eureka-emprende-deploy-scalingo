@@ -16,10 +16,10 @@ public class EmprendimientoListadoResponseDTO {
     private String provinciaNombre;
 
     private Boolean estatusEmprendimiento;
+    private String estadoEmprendimiento;      // <--- NUEVO
     private String tipoEmprendimiento;
     private String subTipoEmprendimiento;
     private Integer tipoEmprendimientoId;
-
 
     private List<CategoriaListadoDTO> categorias;
     private List<MultimediaListadoDTO> multimedia;
@@ -33,6 +33,7 @@ public class EmprendimientoListadoResponseDTO {
             Integer provinciaId,
             String provinciaNombre,
             Boolean estatusEmprendimiento,
+            String estadoEmprendimiento,      // <--- NUEVO
             String tipoEmprendimiento,
             String subTipoEmprendimiento,
             Integer tipoEmprendimientoId
@@ -45,8 +46,10 @@ public class EmprendimientoListadoResponseDTO {
         this.provinciaId = provinciaId;
         this.provinciaNombre = provinciaNombre;
         this.estatusEmprendimiento = estatusEmprendimiento;
+        this.estadoEmprendimiento = estadoEmprendimiento;   // <---
         this.tipoEmprendimiento = tipoEmprendimiento;
         this.subTipoEmprendimiento = subTipoEmprendimiento;
         this.tipoEmprendimientoId = tipoEmprendimientoId;
     }
 }
+

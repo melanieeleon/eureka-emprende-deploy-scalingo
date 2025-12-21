@@ -26,6 +26,7 @@ select distinct new com.example.eureka.entrepreneurship.infrastructure.dto.respo
     p.id,
     p.nombre,
     e.estatusEmprendimiento,
+    e.estadoEmprendimiento,
     te.tipo,
     te.subTipo,
     te.id
@@ -62,6 +63,7 @@ where lower(e.nombreComercial) like lower(concat('%', coalesce(:nombre,  e.nombr
        p.id,
        p.nombre,
        e.estatusEmprendimiento,
+       e.estadoEmprendimiento,
        te.tipo,
        te.subTipo,
        te.id

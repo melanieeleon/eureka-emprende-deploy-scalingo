@@ -27,6 +27,7 @@ public class EmprendimientoDTO {
 
     private Boolean estadoEmpredimiento;
 
+
     private String tipoEmprendimiento;
 
     private Integer tipoEmprendimientoId;
