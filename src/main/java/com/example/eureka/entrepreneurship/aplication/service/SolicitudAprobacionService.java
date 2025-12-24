@@ -49,6 +49,7 @@ public class SolicitudAprobacionService {
     private final ObjectMapper objectMapper;
     private final NotificacionService notificacionService;
     private final IUserRepository userRepository;
+    private final IDescripcionesRepository descripcionesRepository;
 
     /**
      * Captura el estado completo actual del emprendimiento (todas las relaciones)
@@ -85,7 +86,7 @@ public class SolicitudAprobacionService {
                 .collect(Collectors.toList()));
 
         // Descripciones
-        List<TiposDescripcionEmprendimiento> descripciones = emprendimientosDescripcionRepository
+        List<DescripcionEmprendimiento> descripciones = emprendimientosDescripcionRepository
                 .findByEmprendimientoId(emprendimientoId);
         dto.setDescripciones(descripciones.stream()
                 .map(this::mapDescripcionToDTO)
@@ -125,6 +126,7 @@ public class SolicitudAprobacionService {
     /**
      * Crear solicitud con todos los datos propuestos
      */
+    @Transactional
     public SolicitudAprobacion crearSolicitud(
             Integer emprendimientoId,
             EmprendimientoCompletoDTO datosCompletos,
@@ -156,7 +158,7 @@ public class SolicitudAprobacionService {
             // Capturar estado original para comparación
             datosOriginales = capturarEstadoCompleto(emprendimientoId);
         } else {
-            throw new IllegalStateException("El emprendimiento debe estar en estado PENDIENTE_APROBACION o PUBLICADO");
+            throw new IllegalStateException("El emprendimiento debe estar en estado BORRADOR o PUBLICADO");
         }
 
         // Crear solicitud
@@ -165,7 +167,6 @@ public class SolicitudAprobacionService {
         solicitud.setUsuarioSolicitante(usuario);
         solicitud.setTipoSolicitud(tipoSolicitud);
         solicitud.setEstadoSolicitud(SolicitudAprobacion.EstadoSolicitud.PENDIENTE);
-        solicitud.setFechaSolicitud(LocalDateTime.now());
 
         // Convertir DTOs a Map para JSONB
         try {
@@ -181,14 +182,12 @@ public class SolicitudAprobacionService {
             throw new RuntimeException("Error al procesar datos del emprendimiento");
         }
 
-        // Actualizar estado del emprendimiento según tipo de solicitud
+        // Actualizar estado del emprendimiento
         if (tipoSolicitud == SolicitudAprobacion.TipoSolicitud.CREACION) {
             emprendimiento.setEstadoEmprendimiento(EstadoEmprendimiento.PENDIENTE_APROBACION.name());
-        } else if (tipoSolicitud == SolicitudAprobacion.TipoSolicitud.ACTUALIZACION) {
-            // ✅ Cambiar a EN_REVISION pero el público sigue viendo los datos actuales
-            emprendimiento.setEstadoEmprendimiento(EstadoEmprendimiento.EN_REVISION.name());
+            emprendimientosRepository.save(emprendimiento);
         }
-        emprendimientosRepository.save(emprendimiento);
+        // Si es ACTUALIZACION, el emprendimiento sigue PUBLICADO
 
         solicitud = solicitudRepository.save(solicitud);
 
@@ -201,6 +200,7 @@ public class SolicitudAprobacionService {
         } else {
             notificarAdminsActualizacion(emprendimiento, usuario, solicitud.getId());
         }
+
 
         log.info("Solicitud creada exitosamente con ID: {}", solicitud.getId());
         return solicitud;
@@ -519,15 +519,21 @@ public class SolicitudAprobacionService {
             });
         }
 
+
         // 4. Actualizar descripciones
         if (datos.getDescripciones() != null) {
-            List<TiposDescripcionEmprendimiento> actuales = emprendimientosDescripcionRepository
+            List<DescripcionEmprendimiento> actuales = emprendimientosDescripcionRepository
                     .findByEmprendimientoId(empId);
 
             // Eliminar las que no están en los nuevos datos
             actuales.forEach(actual -> {
-                boolean existe = datos.getDescripciones().stream()
-                        .anyMatch(d -> d.getTipoDescripcion().equals(actual.getTipoDescripcion()));
+                /*boolean existe = datos.getDescripciones().stream()
+                        .anyMatch(d -> d.getTipoDescripcion().equals(actual.getTipoDescripcion()));*/
+                DescripcionEmprendimiento empDe = emprendimientosDescripcionRepository.findByEmprendimientoAndDescripciones(emprendimiento, actual.getDescripciones());
+                boolean existe = false;
+                if(null != empDe){
+                    existe = true;
+                }
                 if (!existe) {
                     emprendimientosDescripcionRepository.delete(actual);
                 }
@@ -535,15 +541,16 @@ public class SolicitudAprobacionService {
 
             // Actualizar o crear
             datos.getDescripciones().forEach(descDTO -> {
-                TiposDescripcionEmprendimiento desc = actuales.stream()
-                        .filter(d -> d.getTipoDescripcion().equals(descDTO.getTipoDescripcion()))
+                Descripciones des = descripcionesRepository.findById(descDTO.getIdDescripcion()).orElse(null);
+                DescripcionEmprendimiento desc = actuales.stream()
+                        .filter(d ->  d.getEmprendimiento().equals(emprendimiento) &&
+                                d.getDescripciones().equals(des)
+                        )
                         .findFirst()
-                        .orElse(new TiposDescripcionEmprendimiento());
+                        .orElse(new DescripcionEmprendimiento());
 
-                desc.setTipoDescripcion(descDTO.getTipoDescripcion());
-                desc.setDescripcion(descDTO.getDescripcion());
-                desc.setMaxCaracteres(descDTO.getMaxCaracteres());
-                desc.setObligatorio(descDTO.getObligatorio());
+                desc.setDescripciones(des);
+                desc.setRespuesta(descDTO.getRespuesta());
                 desc.setEmprendimiento(emprendimiento);
                 emprendimientosDescripcionRepository.save(desc);
             });
@@ -934,13 +941,11 @@ public class SolicitudAprobacionService {
         return dto;
     }
 
-    private EmprendimientoDescripcionDTO mapDescripcionToDTO(TiposDescripcionEmprendimiento desc) {
+    private EmprendimientoDescripcionDTO mapDescripcionToDTO(DescripcionEmprendimiento desc) {
         EmprendimientoDescripcionDTO dto = new EmprendimientoDescripcionDTO();
         dto.setEmprendimientoId(desc.getEmprendimiento().getId());
-        dto.setTipoDescripcion(desc.getTipoDescripcion());
-        dto.setDescripcion(desc.getDescripcion());
-        dto.setMaxCaracteres(desc.getMaxCaracteres());
-        dto.setObligatorio(desc.getObligatorio());
+        dto.setIdDescripcion(desc.getDescripciones().getId());
+        dto.setRespuesta(desc.getRespuesta());
         return dto;
     }
 

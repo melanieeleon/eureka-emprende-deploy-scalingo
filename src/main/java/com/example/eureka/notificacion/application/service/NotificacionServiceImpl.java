@@ -94,6 +94,55 @@ public class NotificacionServiceImpl implements NotificacionService {
         return notificacion;
     }
 
+
+    /**
+     * MÉTODO PRINCIPAL: Crear notificación autoevaluación
+     */
+    @Transactional
+    public Notificacion crearNotificacionAutoevaluacion(
+            Integer usuarioId,
+            String codigoTipo,
+            String titulo,
+            String mensaje,
+            String enlace,
+            Integer emprendimientoId) {
+
+        log.info("Creando notificación tipo: {} para usuario: {}", codigoTipo, usuarioId);
+
+        // 1. Buscar usuario
+        Usuarios usuario = userRepository.findById(usuarioId)
+                .orElseThrow(() -> new EntityNotFoundException("Usuario no encontrado"));
+
+        // 2. Buscar tipo de notificación
+        TipoNotificacion tipo = tipoNotificacionRepository
+                .findByCodigoAndActivoTrue(codigoTipo)
+                .orElseThrow(() -> new EntityNotFoundException(
+                        "Tipo de notificación no encontrado: " + codigoTipo));
+
+
+        // 4. Crear notificación
+        Notificacion notificacion = Notificacion.builder()
+                .usuario(usuario)
+                .tipoNotificacion(tipo)
+                .titulo(titulo)
+                .mensaje(mensaje)
+                .enlace(enlace)
+                .prioridad(tipo.getPrioridad())
+                .build();
+
+        // 5. Asociar relaciones si existen
+        if (emprendimientoId != null) {
+            emprendimientoRepository.findById(emprendimientoId)
+                    .ifPresent(notificacion::setEmprendimiento);
+        }
+
+        // 6. Guardar
+        notificacion = notificacionRepository.save(notificacion);
+
+        log.info("✅ Notificación creada: ID {}", notificacion.getId());
+        return notificacion;
+    }
+
     @Override
     public NotificacionDTO obtenerNotificacionPorId(Integer id) {
         Optional<Notificacion> notificacion = notificacionRepository.findById(id);

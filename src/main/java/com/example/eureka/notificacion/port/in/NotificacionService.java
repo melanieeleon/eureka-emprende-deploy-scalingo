@@ -18,6 +18,14 @@ public interface NotificacionService {
             Integer emprendimientoId,
             Integer solicitudId);
 
+    Notificacion crearNotificacionAutoevaluacion(
+            Integer usuarioId,
+            String codigoTipo,
+            String titulo,
+            String mensaje,
+            String enlace,
+            Integer emprendimientoId);
+
     NotificacionDTO obtenerNotificacionPorId(Integer id);
 
     Page<NotificacionDTO> obtenerNotificaciones(Integer usuarioId, Pageable pageable);

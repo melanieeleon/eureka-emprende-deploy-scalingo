@@ -5,13 +5,9 @@ import lombok.Data;
 @Data
 public class EmprendimientoDescripcionDTO {
 
-    private String tipoDescripcion;
+    private Integer idDescripcion;
 
-    private String descripcion;
-
-    private Integer maxCaracteres;
-
-    private Boolean obligatorio;
+    private String respuesta;
 
     private Integer idEmprendimiento;
 

@@ -1,7 +1,7 @@
 package com.example.eureka.roadmap.application.service;
 
 import com.example.eureka.entrepreneurship.domain.model.Emprendimientos;
-import com.example.eureka.entrepreneurship.domain.model.TiposDescripcionEmprendimiento;
+import com.example.eureka.entrepreneurship.domain.model.DescripcionEmprendimiento;
 import com.example.eureka.entrepreneurship.port.out.IEmprendimientosDescripcionRepository;
 import com.example.eureka.roadmap.domain.Roadmap;
 import com.example.eureka.entrepreneurship.port.out.IEmprendimientosRepository;
@@ -42,11 +42,11 @@ public class RoadmapServiceImpl implements RoadmapService {
     public Roadmap save(RoadmapDTO roadmap) {
 
         Emprendimientos emp = emprendimientosRepository.findById(roadmap.getIdEmprendimiento()).orElse(null);
-        List<TiposDescripcionEmprendimiento> descripcionEmprendimientos = emprendimientosDescripcionRepository.findByEmprendimientoId(roadmap.getIdEmprendimiento());
+        List<DescripcionEmprendimiento> descripcionEmprendimientos = emprendimientosDescripcionRepository.findByEmprendimientoId(roadmap.getIdEmprendimiento());
         String historia = "";
         String objetivo = "";
-        for(TiposDescripcionEmprendimiento e: descripcionEmprendimientos) {
-            if(e.getTipoDescripcion().equals("HISTORIA")){
+        for(DescripcionEmprendimiento e: descripcionEmprendimientos) {
+  /*          if(e.getTipoDescripcion().equals("HISTORIA")){
                 historia += " "+e.getTipoDescripcion();
             }
             if(e.getTipoDescripcion().equals("PROPOSITO")){
@@ -58,7 +58,7 @@ public class RoadmapServiceImpl implements RoadmapService {
             if (e.getTipoDescripcion().equals("PUBLICO OBJETIVO")){
                 objetivo += " " + e.getTipoDescripcion();
             }
-
+*/
 
         }
         roadmap.setHistoria(historia);

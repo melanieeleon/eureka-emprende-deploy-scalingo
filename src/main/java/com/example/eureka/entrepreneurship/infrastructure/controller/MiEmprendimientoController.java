@@ -57,8 +57,9 @@ public class MiEmprendimientoController {
         }
     }
 
-
-
+    /**
+     * Obtener mi emprendimiento (emprendedor - incluye datos pendientes si existen)
+     */
     @GetMapping("/{id}/mi-emprendimiento")
     public ResponseEntity<?> obtenerMiEmprendimiento(
             @PathVariable Integer id,

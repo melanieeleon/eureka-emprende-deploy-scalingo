@@ -39,7 +39,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -78,6 +77,8 @@ public class EmprendimientoServiceImpl implements EmprendimientoService {
     private final IAutoevaluacionRepository autoevaluacionRepository;
     private final IMetricasPreguntaRepository metricasPreguntaRepository;
     private final IPreguntaRepository preguntaRepository;
+
+    private final IDescripcionesRepository descripcionesRepository;
 
 
     @Override
@@ -133,14 +134,31 @@ public class EmprendimientoServiceImpl implements EmprendimientoService {
         }
 
         // Agregar todas las relaciones solo si es CREAR (no borrador)
-        if ("CREAR".equals(emprendimientoRequestDTO.getTipoAccion())) {
-            agregarCategoriaEmprendimiento(emprendimiento, emprendimientoRequestDTO.getCategorias());
-            agregarDescripcionEmprendimiento(emprendimiento, emprendimientoRequestDTO.getDescripciones());
-            agregarMetricasEmprendimiento(emprendimiento, emprendimientoRequestDTO.getMetricas());
-            agregarPresenciaDigitalEmprendimiento(emprendimiento, emprendimientoRequestDTO.getPresenciasDigitales());
-            agregarParticipacionComunidad(emprendimiento, emprendimientoRequestDTO.getParticipacionesComunidad());
-            agregarDeclaracionesFinales(emprendimiento, emprendimientoRequestDTO.getDeclaracionesFinales());
-        }
+        //if ("CREAR".equals(emprendimientoRequestDTO.getTipoAccion())) {
+         if(null != emprendimientoRequestDTO.getCategorias()) {
+             agregarCategoriaEmprendimiento(emprendimiento, emprendimientoRequestDTO.getCategorias());
+         }
+         if(null != emprendimientoRequestDTO.getDescripciones()){
+             agregarDescripcionEmprendimiento(emprendimiento, emprendimientoRequestDTO.getDescripciones());
+         }
+
+         if(null != emprendimientoRequestDTO.getMetricas()){
+             agregarMetricasEmprendimiento(emprendimiento, emprendimientoRequestDTO.getMetricas());
+         }
+
+         if(null != emprendimientoRequestDTO.getPresenciasDigitales()){
+             agregarPresenciaDigitalEmprendimiento(emprendimiento, emprendimientoRequestDTO.getPresenciasDigitales());
+         }
+
+         if(null != emprendimientoRequestDTO.getParticipacionesComunidad()){
+             agregarParticipacionComunidad(emprendimiento, emprendimientoRequestDTO.getParticipacionesComunidad());
+         }
+
+         if(null != emprendimientoRequestDTO.getDeclaracionesFinales()){
+             agregarDeclaracionesFinales(emprendimiento, emprendimientoRequestDTO.getDeclaracionesFinales());
+         }
+
+        //}
 
         log.info("Emprendimiento creado exitosamente with ID: {}", emprendimiento.getId());
         return emprendimiento.getId();
@@ -282,49 +300,65 @@ public class EmprendimientoServiceImpl implements EmprendimientoService {
         }
 
         // Actualizar relaciones
-        emprendimientoCategoriasRepository.deleteEmprendimientoCategoriasByEmprendimientoId(id);
-        agregarCategoriaEmprendimiento(emprendimiento, emprendimientoRequestDTO.getCategorias());
+        if(null != emprendimientoRequestDTO.getCategorias()){
+            emprendimientoCategoriasRepository.deleteEmprendimientoCategoriasByEmprendimientoId(id);
+            agregarCategoriaEmprendimiento(emprendimiento, emprendimientoRequestDTO.getCategorias());
+        }
+
 
         // ... (resto del código de actualización sin cambios)
-        actualizarDescripciones(id, emprendimiento, emprendimientoRequestDTO.getDescripciones());
-        actualizarMetricas(id, emprendimiento, emprendimientoRequestDTO.getMetricas());
-        actualizarPresenciaDigital(id, emprendimiento, emprendimientoRequestDTO.getPresenciasDigitales());
-        actualizarParticipacionComunidad(id, emprendimiento, emprendimientoRequestDTO.getParticipacionesComunidad());
-        actualizarDeclaraciones(id, emprendimiento, emprendimientoRequestDTO.getDeclaracionesFinales());
+        if(null != emprendimientoRequestDTO.getDescripciones()){
+            actualizarDescripciones(id, emprendimiento, emprendimientoRequestDTO.getDescripciones());
+        }
+
+        if(null != emprendimientoRequestDTO.getMetricas()){
+            actualizarMetricas(id, emprendimiento, emprendimientoRequestDTO.getMetricas());
+        }
+
+        if(null != emprendimientoRequestDTO.getPresenciasDigitales()){
+            actualizarPresenciaDigital(id, emprendimiento, emprendimientoRequestDTO.getPresenciasDigitales());
+        }
+
+        if(null != emprendimientoRequestDTO.getParticipacionesComunidad()){
+            actualizarParticipacionComunidad(id, emprendimiento, emprendimientoRequestDTO.getParticipacionesComunidad());
+        }
+
+        if(null != emprendimientoRequestDTO.getDeclaracionesFinales()){
+            actualizarDeclaraciones(id, emprendimiento, emprendimientoRequestDTO.getDeclaracionesFinales());
+        }
 
         return obtenerEmprendimientoCompletoPorId(id);
     }
 
     // Métodos auxiliares para actualización (extraídos para mejor organización)
     private void actualizarDescripciones(Integer id, Emprendimientos emprendimiento, List<EmprendimientoDescripcionDTO> nuevas) {
-        List<TiposDescripcionEmprendimiento> actuales = emprendimientosDescripcionRepository.findByEmprendimientoId(id);
+        List<DescripcionEmprendimiento> actuales = emprendimientosDescripcionRepository.findByEmprendimientoId(id);
         List<EmprendimientoDescripcionDTO> nuevasDescripciones = nuevas != null ? nuevas : List.of();
 
-        for (TiposDescripcionEmprendimiento actual : actuales) {
+        for (DescripcionEmprendimiento actual : actuales) {
+
             boolean existe = nuevasDescripciones.stream()
-                    .anyMatch(d -> d.getTipoDescripcion().equals(actual.getTipoDescripcion()));
+                    .anyMatch(d -> d.getRespuesta().equals(actual.getRespuesta()));
             if (!existe) {
                 emprendimientosDescripcionRepository.delete(actual);
             }
         }
 
         for (EmprendimientoDescripcionDTO nueva : nuevasDescripciones) {
-            TiposDescripcionEmprendimiento actual = actuales.stream()
-                    .filter(d -> d.getTipoDescripcion().equals(nueva.getTipoDescripcion()))
+            Descripciones de = descripcionesRepository.findById(nueva.getIdDescripcion()).orElse(null);
+            DescripcionEmprendimiento actual = emprendimientosDescripcionRepository.findByEmprendimientoAndDescripciones(emprendimiento, de);
+            /*DescripcionEmprendimiento actual = actuales.stream()
+                    .filter(d -> d.getRespuesta().equals(nueva.getRespuesta()))
                     .findFirst()
-                    .orElse(null);
+                    .orElse(null);*/
 
             if (actual != null) {
-                actual.setDescripcion(nueva.getDescripcion());
-                actual.setMaxCaracteres(nueva.getMaxCaracteres());
-                actual.setObligatorio(nueva.getObligatorio());
+                actual.setRespuesta(nueva.getRespuesta());
                 emprendimientosDescripcionRepository.save(actual);
             } else {
-                TiposDescripcionEmprendimiento nuevaDesc = new TiposDescripcionEmprendimiento();
-                nuevaDesc.setTipoDescripcion(nueva.getTipoDescripcion());
-                nuevaDesc.setDescripcion(nueva.getDescripcion());
-                nuevaDesc.setMaxCaracteres(nueva.getMaxCaracteres());
-                nuevaDesc.setObligatorio(nueva.getObligatorio());
+                DescripcionEmprendimiento nuevaDesc = new DescripcionEmprendimiento();
+                nuevaDesc.setRespuesta(nueva.getRespuesta());
+                nuevaDesc.setDescripciones(de);
                 nuevaDesc.setEmprendimiento(emprendimiento);
                 emprendimientosDescripcionRepository.save(nuevaDesc);
             }
@@ -410,10 +444,10 @@ public class EmprendimientoServiceImpl implements EmprendimientoService {
         Map<Integer, String> descripcionesMap = emprendimientosDescripcionRepository
                 .findByEmprendimientoIdIn(empIds)
                 .stream()
-                .filter(d -> "1".equals(d.getTipoDescripcion()))
+                .filter(d -> "1".equals(d.getRespuesta()))
                 .collect(Collectors.toMap(
                         d -> d.getEmprendimiento().getId(),
-                        TiposDescripcionEmprendimiento::getDescripcion,
+                        DescripcionEmprendimiento::getRespuesta,
                         (existing, replacement) -> existing // En caso de duplicados, mantener el primero
                 ));
 
@@ -504,11 +538,20 @@ public class EmprendimientoServiceImpl implements EmprendimientoService {
 
             for(RespuestaFormularioPreguntaDTO rp : respuestaFormularioDTOS){
                 Pregunta p = preguntaRepository.findById(rp.getIdPregunta()).orElse(null);
+                List<MetricasPregunta> lsM =  metricasPreguntaRepository.findAllByEmprendimientosAndPregunta(emprendimiento, p);
                 MetricasPregunta m = new MetricasPregunta();
                 m.setEmprendimientos(emprendimiento);
                 m.setPregunta(p);
-                m.setValoracion(rp.getPromedio());
                 m.setFechaRegistro(LocalDateTime.now());
+                if(null != lsM){
+                    for(MetricasPregunta mp : lsM){
+                        m = mp;
+                        m.setValoracion(rp.getPromedio());
+                    }
+                }else{
+                    m.setValoracion(rp.getPromedio());
+                }
+
                 metricasPreguntaRepository.save(m);
             }
 
@@ -629,10 +672,6 @@ public class EmprendimientoServiceImpl implements EmprendimientoService {
 
         return page;
     }
-
-
-
-
 
     @Override
     public EmprendimientoPorCategoriaDTO obtenerEmprendimientosPorCategoria(Integer categoriaId) {
@@ -834,13 +873,12 @@ public class EmprendimientoServiceImpl implements EmprendimientoService {
 
         log.debug("Agregando {} descripciones al emprendimiento: {}", lsDescripcion.size(), emprendimiento.getId());
 
-        List<TiposDescripcionEmprendimiento> descripciones = lsDescripcion.stream()
+        List<DescripcionEmprendimiento> descripciones = lsDescripcion.stream()
                 .map(dto -> {
-                    TiposDescripcionEmprendimiento descripcion = new TiposDescripcionEmprendimiento();
-                    descripcion.setTipoDescripcion(dto.getTipoDescripcion());
-                    descripcion.setDescripcion(dto.getDescripcion());
-                    descripcion.setMaxCaracteres(dto.getMaxCaracteres());
-                    descripcion.setObligatorio(dto.getObligatorio());
+                    Descripciones de = descripcionesRepository.findById(dto.getIdDescripcion()).orElseThrow();
+                    DescripcionEmprendimiento descripcion = new DescripcionEmprendimiento();
+                    descripcion.setDescripciones(de);
+                    descripcion.setRespuesta(dto.getRespuesta());
                     descripcion.setEmprendimiento(emprendimiento);
                     return descripcion;
                 })
@@ -966,15 +1004,6 @@ public class EmprendimientoServiceImpl implements EmprendimientoService {
         emprendimientos.setActivoEmprendimiento(true);
         emprendimientosRepository.save(emprendimientos);
     }
-
-    public List<String> obtenerNombresCategorias(Integer emprendimientoId) {
-        return emprendimientoCategoriasRepository
-                .findByEmprendimientoIdWithCategoria(emprendimientoId)
-                .stream()
-                .map(ec -> ec.getCategoria().getNombre())
-                .toList();
-    }
-
 
 }
 

@@ -51,9 +51,9 @@ public class FormularioController {
         return ResponseEntity.ok(formularioService.getFormularioByEmprendimiento(idEmprendimiento));
     }
 
-    @PostMapping("/save-opcion-respuesta")
-    public ResponseEntity<List<OpcionRespuestaDTO>> save(@RequestBody List<OpcionRespuestaResponseDTO> opcionRespuestaDTO) {
-        return ResponseEntity.ok(opcionRespuestaService.save(opcionRespuestaDTO));
+    @PostMapping("/save-opcion-respuesta/{idUsuario}")
+    public ResponseEntity<List<OpcionRespuestaDTO>> save(@PathVariable Integer idUsuario, @RequestBody List<OpcionRespuestaResponseDTO> opcionRespuestaDTO) {
+        return ResponseEntity.ok(opcionRespuestaService.save(opcionRespuestaDTO, idUsuario));
     }
 
     @PostMapping("/autoevaluacion/save")

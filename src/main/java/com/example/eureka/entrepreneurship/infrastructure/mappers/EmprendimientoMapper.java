@@ -120,13 +120,11 @@ public class EmprendimientoMapper {
                 .collect(Collectors.toList());
     }
 
-    public static List<EmprendimientoDescripcionDTO> toDescripcionDTOList(List<TiposDescripcionEmprendimiento> descripciones) {
+    public static List<EmprendimientoDescripcionDTO> toDescripcionDTOList(List<DescripcionEmprendimiento> descripciones) {
         return descripciones.stream().map(desc -> {
             EmprendimientoDescripcionDTO dto = new EmprendimientoDescripcionDTO();
-            dto.setTipoDescripcion(desc.getTipoDescripcion());
-            dto.setDescripcion(desc.getDescripcion());
-            dto.setMaxCaracteres(desc.getMaxCaracteres());
-            dto.setObligatorio(desc.getObligatorio());
+            dto.setIdDescripcion(desc.getDescripciones().getId());
+            dto.setRespuesta(desc.getRespuesta());
             dto.setEmprendimientoId(desc.getEmprendimiento().getId());
             return dto;
         }).collect(Collectors.toList());

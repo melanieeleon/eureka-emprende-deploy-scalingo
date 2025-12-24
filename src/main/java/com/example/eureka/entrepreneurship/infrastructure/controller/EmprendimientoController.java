@@ -214,7 +214,10 @@ public class EmprendimientoController {
         EmprendimientoRequestDTO request =
                 objectMapper.readValue(data, EmprendimientoRequestDTO.class);
         try {
-            request.setImagenes(imagenes);
+            if(null != imagenes){
+                request.setImagenes(imagenes);
+            }
+
             EmprendimientoResponseDTO actualizado = emprendimientoService
                     .actualizarEmprendimiento(id, request);
             return ResponseEntity.ok(Map.of(

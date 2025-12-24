@@ -16,7 +16,7 @@ public interface OpcionRespuestaService {
 
     Page<OpcionRespuestaDTO> findAllByOpciones(Opciones opciones, Pageable pageable);
 
-    List<OpcionRespuestaDTO> save(List<OpcionRespuestaResponseDTO> opcionRespuesta);
+    List<OpcionRespuestaDTO> save(List<OpcionRespuestaResponseDTO> opcionRespuesta, Integer idUsuario);
 
     RespuestaResponseDTO generaRespuestaAutoevaluacion(RespuestaResponseDTO respuesta);
 }

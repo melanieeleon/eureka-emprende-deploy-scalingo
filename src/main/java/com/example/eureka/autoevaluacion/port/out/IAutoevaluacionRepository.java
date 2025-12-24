@@ -73,7 +73,7 @@ public interface IAutoevaluacionRepository extends JpaRepository<Respuesta, Inte
                     e.id                          AS idEmprendimiento,
                     e.nombre_comercial            AS nombreComercial,
                     p.id_pregunta                 AS idPregunta,
-                    p.pregunta                    AS pregunta,
+                    p.pregunta                    AS pregunta
                     AVG(COALESCE(ore.valor_escala, 0)) AS promedio
                 FROM respuesta r
                          INNER JOIN formulario f
@@ -84,8 +84,10 @@ public interface IAutoevaluacionRepository extends JpaRepository<Respuesta, Inte
                                     ON fp.id_pregunta = p.id_pregunta
                          INNER JOIN opcion_respuesta ore
                                     ON ore.id_respuesta = r.id_respuesta
+                         INNER JOIN tipo_formulario tpf ON f.id_tipo_formulario = tpf.id_tipo
                          INNER JOIN emprendimientos e
                                     ON e.id = r.id_emprendimiento
+                        WHERE tpf.nombre in ('EVALUACION_PRODUCTO', 'EVALUACION_SERVICIO')
                 GROUP BY
                     f.nombre,
                     e.id,
