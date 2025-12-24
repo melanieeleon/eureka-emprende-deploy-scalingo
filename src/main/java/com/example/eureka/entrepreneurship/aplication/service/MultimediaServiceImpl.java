@@ -31,6 +31,7 @@ public class MultimediaServiceImpl implements MultimediaService {
     private final IEmprendimientoMultimediaRepository emprendimientoMultimediaRepository;
     private final FileStorageService fileStorageService;
 
+
     @Override
     @Transactional
     public void agregarImagen(Integer emprendimientoId, MultipartFile archivo, String tipo) {

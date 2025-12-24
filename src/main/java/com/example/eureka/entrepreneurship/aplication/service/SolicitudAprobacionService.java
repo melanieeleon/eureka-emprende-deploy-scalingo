@@ -943,7 +943,6 @@ public class SolicitudAprobacionService {
 
     private EmprendimientoDescripcionDTO mapDescripcionToDTO(DescripcionEmprendimiento desc) {
         EmprendimientoDescripcionDTO dto = new EmprendimientoDescripcionDTO();
-        dto.setEmprendimientoId(desc.getEmprendimiento().getId());
         dto.setIdDescripcion(desc.getDescripciones().getId());
         dto.setRespuesta(desc.getRespuesta());
         return dto;
@@ -959,7 +958,6 @@ public class SolicitudAprobacionService {
 
     private EmprendimientoPresenciaDigitalDTO mapPresenciaDigitalToDTO(TiposPresenciaDigital pd) {
         EmprendimientoPresenciaDigitalDTO dto = new EmprendimientoPresenciaDigitalDTO();
-        dto.setEmprendimientoId(pd.getEmprendimiento().getId());
         dto.setPlataforma(pd.getPlataforma());
         dto.setDescripcion(pd.getDescripcion());
         return dto;

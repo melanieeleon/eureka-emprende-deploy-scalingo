@@ -37,9 +37,10 @@ public class CiudadServiceImpl implements CiudadService {
 
     @Override
     public List<CiudadDTO> listar() {
-        return ciudadRepository.findAll()
-                .stream().map(this::mapToDTO)
-                .collect(Collectors.toList());
+        return ciudadRepository.findAllWithProvincia()
+                .stream()
+                .map(this::mapToDTO)
+                .toList();
     }
 
     @Override

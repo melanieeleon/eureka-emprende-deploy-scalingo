@@ -4,6 +4,7 @@ import com.example.eureka.auth.domain.Usuarios;
 import com.example.eureka.entrepreneurship.infrastructure.dto.publico.EmprendimientoListaPublicoDTO;
 import com.example.eureka.auth.aplication.services.UsuariosServiceImpl;
 import com.example.eureka.entrepreneurship.infrastructure.dto.response.EmprendimientoListadoResponseDTO;
+import com.example.eureka.entrepreneurship.infrastructure.dto.response.EmprendimientoPublicoDTO;
 import com.example.eureka.entrepreneurship.infrastructure.dto.shared.EmprendimientoPorCategoriaDTO;
 import com.example.eureka.entrepreneurship.infrastructure.dto.request.EmprendimientoRequestDTO;
 import com.example.eureka.entrepreneurship.infrastructure.dto.shared.EmprendimientoResponseDTO;
@@ -45,10 +46,10 @@ public class EmprendimientoController {
     private final ObjectMapper objectMapper;
 
     /**
-     * Obtener emprendimiento por ID (público - solo datos publicados)
+     * Obtener emprendimiento por ID ()
      */
-    @GetMapping("/{id}/publico")
-    public ResponseEntity<?> obtenerEmprendimientoPublico(@PathVariable Integer id) {
+    @GetMapping("/{id}")
+    public ResponseEntity<?> obtenerEmprendimientoXid(@PathVariable Integer id) {
         try {
             EmprendimientoResponseDTO emprendimiento = emprendimientoService
                     .obtenerEmprendimientoCompletoPorId(id);
@@ -61,6 +62,11 @@ public class EmprendimientoController {
         }
     }
 
+    @GetMapping("publico/{id}")
+    public ResponseEntity<EmprendimientoPublicoDTO> obtenerEmprendimientoPublico(@PathVariable Integer id) {
+        EmprendimientoPublicoDTO dto = emprendimientoService.obtenerEmprendimientoPublicoPorId(id);
+        return ResponseEntity.ok(dto);
+    }
     /**
      * Obtener todos los emprendimientos por nombre
      */

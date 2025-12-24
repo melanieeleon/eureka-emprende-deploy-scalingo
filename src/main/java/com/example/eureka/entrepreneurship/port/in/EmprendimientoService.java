@@ -7,6 +7,7 @@ import com.example.eureka.entrepreneurship.infrastructure.dto.publico.Emprendimi
 import com.example.eureka.entrepreneurship.infrastructure.dto.publico.MiniEmprendimientoDTO;
 import com.example.eureka.entrepreneurship.infrastructure.dto.request.EmprendimientoRequestDTO;
 import com.example.eureka.entrepreneurship.infrastructure.dto.response.EmprendimientoListadoResponseDTO;
+import com.example.eureka.entrepreneurship.infrastructure.dto.response.EmprendimientoPublicoDTO;
 import com.example.eureka.entrepreneurship.infrastructure.dto.shared.EmprendimientoDTO;
 import com.example.eureka.entrepreneurship.infrastructure.dto.shared.EmprendimientoPorCategoriaDTO;
 import com.example.eureka.entrepreneurship.infrastructure.dto.shared.EmprendimientoResponseDTO;
@@ -32,6 +33,9 @@ public interface EmprendimientoService {
     Emprendimientos crearBorradorEmprendimiento(@Valid EmprendimientoDTO emprendimientoDTO, Usuarios usuario);
 
     EmprendimientoResponseDTO obtenerEmprendimientoCompletoPorId(Integer id);
+
+    EmprendimientoPublicoDTO obtenerEmprendimientoPublicoPorId(Integer id);
+
 
     EmprendimientoResponseDTO actualizarEmprendimiento(Integer id, EmprendimientoRequestDTO emprendimientoRequestDTO) throws Exception;
 

@@ -5,11 +5,12 @@ import lombok.Data;
 @Data
 public class EmprendimientoDescripcionDTO {
 
+    private Integer idEmprendimiento;
+
     private Integer idDescripcion;
+
+    private String descripcionBase;
 
     private String respuesta;
 
-    private Integer idEmprendimiento;
-
-    private Integer emprendimientoId;
 }

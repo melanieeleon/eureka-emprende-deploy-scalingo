@@ -3,6 +3,7 @@ package com.example.eureka.entrepreneurship.infrastructure.mappers;
 import com.example.eureka.auth.domain.Usuarios;
 import com.example.eureka.entrepreneurship.domain.model.*;
 import com.example.eureka.entrepreneurship.infrastructure.dto.response.EmprendimientoListadoResponseDTO;
+import com.example.eureka.entrepreneurship.infrastructure.dto.response.EmprendimientoPublicoDTO;
 import com.example.eureka.entrepreneurship.infrastructure.dto.shared.*;
 import com.example.eureka.general.domain.model.Categorias;
 import com.example.eureka.general.domain.model.Ciudades;
@@ -123,9 +124,10 @@ public class EmprendimientoMapper {
     public static List<EmprendimientoDescripcionDTO> toDescripcionDTOList(List<DescripcionEmprendimiento> descripciones) {
         return descripciones.stream().map(desc -> {
             EmprendimientoDescripcionDTO dto = new EmprendimientoDescripcionDTO();
+            dto.setIdEmprendimiento(desc.getEmprendimiento().getId());
             dto.setIdDescripcion(desc.getDescripciones().getId());
             dto.setRespuesta(desc.getRespuesta());
-            dto.setEmprendimientoId(desc.getEmprendimiento().getId());
+            dto.setDescripcionBase(desc.getDescripciones().getDescripcion());
             return dto;
         }).collect(Collectors.toList());
     }
@@ -253,4 +255,49 @@ public class EmprendimientoMapper {
         // Mapear otras relaciones si es necesario...
         return dto;
     }
+
+    public static EmprendimientoPublicoDTO toPublicoDTO(Emprendimientos e) {
+        EmprendimientoPublicoDTO dto = new EmprendimientoPublicoDTO();
+        dto.setId(e.getId());
+        dto.setNombreComercial(e.getNombreComercial());
+        dto.setAnioCreacion(e.getAnioCreacion());
+        dto.setActivoEmprendimiento(e.getActivoEmprendimiento());
+        dto.setAceptaDatosPublicos(e.getAceptaDatosPublicos());
+        dto.setFechaCreacion(e.getFechaCreacion());
+        dto.setFechaActualizacion(e.getFechaActualizacion());
+        dto.setEstadoEmprendimiento(e.getEstadoEmprendimiento());
+
+        if (e.getUsuarios() != null) {
+            dto.setUsuarioId(e.getUsuarios().getId().intValue());
+            dto.setNombreUsuario(e.getUsuarios().getNombre());
+        }
+        if (e.getCiudades() != null) {
+            dto.setCiudadId(e.getCiudades().getId().intValue());
+            dto.setNombreCiudad(e.getCiudades().getNombreCiudad());
+        }
+        if (e.getTiposEmprendimientos() != null) {
+            dto.setTipoEmprendimientoId(e.getTiposEmprendimientos().getId().intValue());
+            dto.setNombreTipoEmprendimiento(e.getTiposEmprendimientos().getTipo());
+        }
+
+        return dto;
+    }
+
+    public static EmprendimientoDescripcionDTO mapDescripcionToDTO(DescripcionEmprendimiento desc) {
+        EmprendimientoDescripcionDTO dto = new EmprendimientoDescripcionDTO();
+        dto.setIdEmprendimiento(desc.getEmprendimiento().getId().intValue());
+        dto.setIdDescripcion(desc.getDescripciones().getId().intValue());
+        dto.setDescripcionBase(desc.getDescripciones().getDescripcion());
+        dto.setRespuesta(desc.getRespuesta());
+        return dto;
+    }
+
+    // 3) Presencia digital -> DTO
+    public static EmprendimientoPresenciaDigitalDTO toPresenciaDigitalDTO(TiposPresenciaDigital entidad) {
+        EmprendimientoPresenciaDigitalDTO dto = new EmprendimientoPresenciaDigitalDTO();
+        dto.setPlataforma(entidad.getPlataforma());
+        dto.setDescripcion(entidad.getDescripcion());
+        return dto;
+    }
+
 }

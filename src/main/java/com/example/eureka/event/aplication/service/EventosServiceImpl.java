@@ -209,10 +209,6 @@ public class EventosServiceImpl implements EventosService {
             TipoEvento tipoEvento,
             Pageable pageable) {
 
-        if (mes == null) {
-            throw new BusinessException("El parámetro 'mes' es obligatorio para esta consulta.");
-        }
-
         Specification<Eventos> spec = EventoSpecification.conFiltros(
                 titulo,
                 null,

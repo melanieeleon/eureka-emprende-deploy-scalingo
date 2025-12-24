@@ -14,9 +14,8 @@ public class EmprendimientoRequestDTO {
 
     @Valid
     private EmprendimientoDTO emprendimiento;
-
+    private InformacionRepresentanteDTO informacionRepresentante;
     private String tipoAccion; // "CREAR" o "BORRADOR"
-
     private List<EmprendimientoCategoriaDTO> categorias;
     private List<EmprendimientoDescripcionDTO> descripciones;
     private List<EmprendimientoMetricasDTO> metricas;

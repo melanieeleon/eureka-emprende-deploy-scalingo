@@ -9,8 +9,10 @@ import com.example.eureka.entrepreneurship.infrastructure.dto.publico.Emprendimi
 import com.example.eureka.entrepreneurship.infrastructure.dto.publico.MiniEmprendimientoDTO;
 import com.example.eureka.entrepreneurship.infrastructure.dto.response.CategoriaListadoDTO;
 import com.example.eureka.entrepreneurship.infrastructure.dto.response.EmprendimientoListadoResponseDTO;
+import com.example.eureka.entrepreneurship.infrastructure.dto.response.EmprendimientoPublicoDTO;
 import com.example.eureka.entrepreneurship.infrastructure.dto.response.MultimediaListadoDTO;
 import com.example.eureka.entrepreneurship.infrastructure.dto.shared.*;
+import com.example.eureka.entrepreneurship.port.in.MultimediaService;
 import com.example.eureka.entrepreneurship.port.out.*;
 import com.example.eureka.formulario.domain.model.Pregunta;
 import com.example.eureka.general.domain.model.*;
@@ -72,6 +74,8 @@ public class EmprendimientoServiceImpl implements EmprendimientoService {
     private final IEmprendimientoMultimediaRepository emprendimientoMultimediaRepository;
     private final FileStorageService fileStorageService;
     private final ICategoriaRepository categoriasRepository;
+    private final MultimediaService multimediaService;
+
 
     private final IMetricasGeneralesRepository metricasGeneralesRepository;
     private final IAutoevaluacionRepository autoevaluacionRepository;
@@ -124,14 +128,21 @@ public class EmprendimientoServiceImpl implements EmprendimientoService {
                 emprendimientoRequestDTO.getTipoAccion()
         );
 
-        // Procesar multimedia si existen archivos
-        if (!CollectionUtils.isEmpty(emprendimientoRequestDTO.getImagenes())) {
-            agregarMultimediaEmprendimiento(
+        if (emprendimientoRequestDTO.getInformacionRepresentante() != null) {
+            guardarInformacionRepresentante(
                     emprendimiento,
+                    emprendimientoRequestDTO.getInformacionRepresentante()
+            );
+        }
+
+        if (!CollectionUtils.isEmpty(emprendimientoRequestDTO.getImagenes())) {
+            multimediaService.agregarImagenes(
+                    emprendimiento.getId(),
                     emprendimientoRequestDTO.getImagenes(),
                     emprendimientoRequestDTO.getTiposMultimedia()
             );
         }
+
 
         // Agregar todas las relaciones solo si es CREAR (no borrador)
         //if ("CREAR".equals(emprendimientoRequestDTO.getTipoAccion())) {
@@ -164,10 +175,36 @@ public class EmprendimientoServiceImpl implements EmprendimientoService {
         return emprendimiento.getId();
     }
 
+
+    private void guardarInformacionRepresentante(Emprendimientos emprendimiento,
+                                                 InformacionRepresentanteDTO dto) {
+
+        InformacionRepresentante entidad = new InformacionRepresentante();
+        entidad.setNombre(dto.getNombre());
+        entidad.setApellido(dto.getApellido());
+        entidad.setCorreoCorporativo(dto.getCorreoCorporativo());
+        entidad.setCorreoPersonal(dto.getCorreoPersonal());
+        entidad.setTelefono(dto.getTelefono());
+        entidad.setIdentificacion(dto.getIdentificacion());
+        entidad.setCarrera(dto.getCarrera());
+        entidad.setSemestre(dto.getSemestre());
+        if (dto.getFechaGraduacion() != null) {
+            entidad.setFechaGraduacion(dto.getFechaGraduacion());
+        }
+        entidad.setTieneParientesUees(dto.getTieneParientesUees());
+        entidad.setNombrePariente(dto.getNombrePariente());
+        entidad.setAreaPariente(dto.getAreaPariente());
+        entidad.setIntegrantesEquipo(dto.getIntegrantesEquipo());
+        entidad.setEmprendimiento(emprendimiento);
+
+        informacionRepresentanteRepository.save(entidad);
+    }
+
+
     /**
      * NUEVO: Método para agregar multimedia al emprendimiento
      */
-    private void agregarMultimediaEmprendimiento(
+   /** private void agregarMultimediaEmprendimiento(
             Emprendimientos emprendimiento,
             List<MultipartFile> archivos,
             List<String> tipos) {
@@ -226,7 +263,7 @@ public class EmprendimientoServiceImpl implements EmprendimientoService {
                 throw new RuntimeException("Error al subir archivo multimedia: " + e.getMessage());
             }
         }
-    }
+    }*/
 
     private Emprendimientos crearEmprendimiento(EmprendimientoDTO emprendimientoDTO, Usuarios usuario, String tipoAccion) {
         log.debug("Creando emprendimiento con nombre: {}", emprendimientoDTO.getNombreComercialEmprendimiento());
@@ -290,10 +327,9 @@ public class EmprendimientoServiceImpl implements EmprendimientoService {
         }
         emprendimientosRepository.save(emprendimiento);
 
-        // NUEVO: Actualizar multimedia si vienen nuevas imágenes
         if (!CollectionUtils.isEmpty(emprendimientoRequestDTO.getImagenes())) {
-            agregarMultimediaEmprendimiento(
-                    emprendimiento,
+            multimediaService.agregarImagenes(
+                    emprendimiento.getId(),
                     emprendimientoRequestDTO.getImagenes(),
                     emprendimientoRequestDTO.getTiposMultimedia()
             );
@@ -305,7 +341,9 @@ public class EmprendimientoServiceImpl implements EmprendimientoService {
             agregarCategoriaEmprendimiento(emprendimiento, emprendimientoRequestDTO.getCategorias());
         }
 
-
+        if (emprendimientoRequestDTO.getInformacionRepresentante() != null) {
+            actualizarInformacionRepresentante(emprendimiento, emprendimientoRequestDTO.getInformacionRepresentante());
+        }
         // ... (resto del código de actualización sin cambios)
         if(null != emprendimientoRequestDTO.getDescripciones()){
             actualizarDescripciones(id, emprendimiento, emprendimientoRequestDTO.getDescripciones());
@@ -329,6 +367,36 @@ public class EmprendimientoServiceImpl implements EmprendimientoService {
 
         return obtenerEmprendimientoCompletoPorId(id);
     }
+
+    private void actualizarInformacionRepresentante(Emprendimientos emprendimiento,
+                                                    InformacionRepresentanteDTO dto) {
+
+        InformacionRepresentante entidad =
+                representanteInformacionRepository
+                        .findFirstByEmprendimientoId(emprendimiento.getId());
+
+        if (entidad == null) {
+            entidad = new InformacionRepresentante();
+            entidad.setEmprendimiento(emprendimiento);
+        }
+
+        entidad.setNombre(dto.getNombre());
+        entidad.setApellido(dto.getApellido());
+        entidad.setCorreoCorporativo(dto.getCorreoCorporativo());
+        entidad.setCorreoPersonal(dto.getCorreoPersonal());
+        entidad.setTelefono(dto.getTelefono());
+        entidad.setIdentificacion(dto.getIdentificacion());
+        entidad.setCarrera(dto.getCarrera());
+        entidad.setSemestre(dto.getSemestre());
+        entidad.setFechaGraduacion(dto.getFechaGraduacion()); // si ambos son LocalDateTime
+        entidad.setTieneParientesUees(dto.getTieneParientesUees());
+        entidad.setNombrePariente(dto.getNombrePariente());
+        entidad.setAreaPariente(dto.getAreaPariente());
+        entidad.setIntegrantesEquipo(dto.getIntegrantesEquipo());
+
+        representanteInformacionRepository.save(entidad);
+    }
+
 
     // Métodos auxiliares para actualización (extraídos para mejor organización)
     private void actualizarDescripciones(Integer id, Emprendimientos emprendimiento, List<EmprendimientoDescripcionDTO> nuevas) {
@@ -502,12 +570,64 @@ public class EmprendimientoServiceImpl implements EmprendimientoService {
     }
 
     @Override
+    public EmprendimientoPublicoDTO obtenerEmprendimientoPublicoPorId(Integer id) {
+        Emprendimientos e = emprendimientosRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException(
+                        "Emprendimiento no encontrado con id: " + id));
+
+        // 1) Datos básicos
+        EmprendimientoPublicoDTO dto = EmprendimientoMapper.toPublicoDTO(e);
+
+        // 2) Categorías (usando la tabla intermedia)
+        dto.setCategorias(
+                emprendimientoCategoriasRepository.findByEmprendimientoIdWithCategoria(id)
+                        .stream()
+                        .map(rel -> new CategoriaListadoDTO(
+                                rel.getCategoria().getId().intValue(),
+                                rel.getCategoria().getNombre()
+                        ))
+                        .toList()
+        );
+
+        // 3) Descripciones
+        dto.setDescripciones(
+                emprendimientosDescripcionRepository.findByEmprendimientoId(id)
+                        .stream()
+                        .map(EmprendimientoMapper::mapDescripcionToDTO)   // asegúrate que sea public static
+                        .toList()
+        );
+
+        // 4) Presencias digitales
+        dto.setPresenciasDigitales(
+                emprendimientoPresenciaDigitalRepository.findByEmprendimientoId(id)
+                        .stream()
+                        .map(EmprendimientoMapper::toPresenciaDigitalDTO)  // también public static
+                        .toList()
+        );
+
+        // 5) Multimedia (solo nombre + url)
+        dto.setMultimedia(
+                emprendimientoMultimediaRepository.findByEmprendimientoId(id)
+                        .stream()
+                        .map(m -> new MultimediaListadoDTO(
+                                m.getMultimedia().getNombreActivo(),
+                                m.getMultimedia().getUrlArchivo()
+                        ))
+                        .toList()
+        );
+    return dto;}
+
+
+
+
+        @Override
     @Transactional
     public EmprendimientoResponseDTO obtenerEmprendimientoCompletoPorId(Integer id) {
         Emprendimientos emprendimiento = emprendimientosRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Emprendimiento no encontrado con id: " + id));
 
         EmprendimientoResponseDTO dto = EmprendimientoMapper.toResponseDTO(emprendimiento);
+
         dto.setCategorias(EmprendimientoMapper.toCategoriaDTOList(
                 emprendimientoCategoriasRepository.findByEmprendimientoIdWithCategoria(id)
         ));
@@ -530,50 +650,31 @@ public class EmprendimientoServiceImpl implements EmprendimientoService {
                 informacionRepresentanteRepository.findFirstByEmprendimientoId(id)
         ));
 
-        // NUEVO: Incluir multimedia
+        // Multimedia
         dto.setMultimedia(obtenerMultimediaPorEmprendimiento(id));
-        try{
-            MetricasGenerales metricasGenerales = metricasGeneralesRepository.findByEmprendimientos(emprendimiento).orElse(null);
-            List<RespuestaFormularioPreguntaDTO> respuestaFormularioDTOS = autoevaluacionRepository.obtenerPreguntasValoracion();
 
-            for(RespuestaFormularioPreguntaDTO rp : respuestaFormularioDTOS){
-                Pregunta p = preguntaRepository.findById(rp.getIdPregunta()).orElse(null);
-                List<MetricasPregunta> lsM =  metricasPreguntaRepository.findAllByEmprendimientosAndPregunta(emprendimiento, p);
-                MetricasPregunta m = new MetricasPregunta();
-                m.setEmprendimientos(emprendimiento);
-                m.setPregunta(p);
-                m.setFechaRegistro(LocalDateTime.now());
-                if(null != lsM){
-                    for(MetricasPregunta mp : lsM){
-                        m = mp;
-                        m.setValoracion(rp.getPromedio());
-                    }
-                }else{
-                    m.setValoracion(rp.getPromedio());
-                }
+        // Solo métricas de vistas
+        try {
+            MetricasGenerales metricasGenerales =
+                    metricasGeneralesRepository.findByEmprendimientos(emprendimiento).orElse(null);
 
-                metricasPreguntaRepository.save(m);
-            }
-
-
-            if(null == metricasGenerales){
+            if (metricasGenerales == null) {
                 metricasGenerales = new MetricasGenerales();
                 metricasGenerales.setEmprendimientos(emprendimiento);
                 metricasGenerales.setVistas(1);
-
                 metricasGenerales.setFechaRegistro(LocalDateTime.now());
-
-            }else{
+            } else {
                 metricasGenerales.setVistas(metricasGenerales.getVistas() + 1);
             }
-            metricasGeneralesRepository.save(metricasGenerales);
 
-        }catch(Exception e){
-            log.error("ERROR AL GUARDAR METRICA DE EMPRENDIMIENTO {}", emprendimiento.getId());
+            metricasGeneralesRepository.save(metricasGenerales);
+        } catch (Exception e) {
+            log.error("ERROR AL GUARDAR MÉTRICA DE VISTAS DEL EMPRENDIMIENTO {}", emprendimiento.getId(), e);
         }
 
         return dto;
     }
+
 
     /**
      * NUEVO: Obtener multimedia asociada a un emprendimiento
@@ -959,6 +1060,8 @@ public class EmprendimientoServiceImpl implements EmprendimientoService {
 
         emprendimientoParticicipacionComunidadRepository.saveAll(participaciones);
     }
+
+
 
     // Al final del método agregarDeclaracionesFinales
     private void agregarDeclaracionesFinales(Emprendimientos emprendimiento, List<EmprendimientoDeclaracionesDTO> lsDeclaracionesFinales) {

@@ -10,7 +10,10 @@ import java.util.List;
 @Repository
 public interface ICategoriasRepository extends JpaRepository<Categorias,Integer> {
 
-    @Query("SELECT c FROM Categorias as c")
+    @Query("""
+   SELECT c FROM Categorias c
+   LEFT JOIN FETCH c.multimedia
+""")
     List<Categorias> findAll();
 
 }
