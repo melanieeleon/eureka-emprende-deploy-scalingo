@@ -1,13 +1,18 @@
 package com.example.eureka.entrepreneurship.infrastructure.controller;
 
+import com.example.eureka.entrepreneurship.infrastructure.dto.response.SolicitudAprobacionListadoDTO;
 import com.example.eureka.entrepreneurship.infrastructure.dto.shared.EmprendimientoCompletoDTO;
 import com.example.eureka.entrepreneurship.infrastructure.dto.shared.SolicitudAprobacionDTO;
 import com.example.eureka.entrepreneurship.infrastructure.dto.shared.VistaEmprendedorDTO;
 import com.example.eureka.entrepreneurship.aplication.service.SolicitudAprobacionService;
 import com.example.eureka.auth.domain.Usuarios;
 import com.example.eureka.shared.util.CustomUserDetails;
+import com.example.eureka.shared.util.PageResponseDTO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -18,7 +23,7 @@ import java.util.Map;
 
 @Slf4j
 @RestController
-@RequestMapping("/api/solicitudes")
+@RequestMapping("/v1/solicitudes")
 @RequiredArgsConstructor
 public class SolicitudAprobacionController {
 
@@ -98,9 +103,13 @@ public class SolicitudAprobacionController {
      * Listar todas las solicitudes pendientes
      */
     @GetMapping("/admin/pendientes")
-    public ResponseEntity<List<SolicitudAprobacionDTO>> listarSolicitudesPendientes() {
+    public ResponseEntity<PageResponseDTO<SolicitudAprobacionListadoDTO>> listarSolicitudesPendientes(
+            @PageableDefault(size = 10, sort = "fechaSolicitud", direction = Sort.Direction.ASC)
+            Pageable pageable
+    ) {
         log.info("Listando solicitudes pendientes");
-        List<SolicitudAprobacionDTO> solicitudes = solicitudService.listarSolicitudesPendientes();
+        PageResponseDTO<SolicitudAprobacionListadoDTO> solicitudes =
+                solicitudService.listarPendientes(pageable);
         return ResponseEntity.ok(solicitudes);
     }
 

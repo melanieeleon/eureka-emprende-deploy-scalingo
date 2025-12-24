@@ -3,6 +3,7 @@ package com.example.eureka.entrepreneurship.aplication.service;
 import com.example.eureka.auth.domain.Usuarios;
 import com.example.eureka.auth.port.out.IUserRepository;
 import com.example.eureka.entrepreneurship.domain.model.*;
+import com.example.eureka.entrepreneurship.infrastructure.dto.response.SolicitudAprobacionListadoDTO;
 import com.example.eureka.entrepreneurship.infrastructure.dto.shared.*;
 import com.example.eureka.entrepreneurship.port.out.*;
 import com.example.eureka.general.domain.model.*;
@@ -11,11 +12,14 @@ import com.example.eureka.metricas.domain.MetricasBasicas;
 import com.example.eureka.shared.enums.EstadoEmprendimiento;
 import com.example.eureka.general.infrastructure.dto.CategoriasDTO;
 import com.example.eureka.notificacion.port.in.NotificacionService;
+import com.example.eureka.shared.util.PageResponseDTO;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -707,16 +711,18 @@ public class SolicitudAprobacionService {
     /**
      * Listar solicitudes pendientes para el admin
      */
-    public List<SolicitudAprobacionDTO> listarSolicitudesPendientes() {
-        List<SolicitudAprobacion> solicitudes = solicitudRepository
+    public PageResponseDTO<SolicitudAprobacionListadoDTO> listarPendientes(Pageable pageable) {
+        Page<SolicitudAprobacion> page = solicitudRepository
                 .findByEstadoSolicitudOrderByFechaSolicitudAsc(
-                        SolicitudAprobacion.EstadoSolicitud.PENDIENTE
+                        SolicitudAprobacion.EstadoSolicitud.PENDIENTE,
+                        pageable
                 );
 
-        return solicitudes.stream()
-                .map(this::mapSolicitudToDTO)
-                .collect(Collectors.toList());
+        Page<SolicitudAprobacionListadoDTO> dtoPage = page.map(this::mapToListadoDTO);
+
+        return PageResponseDTO.fromPage(dtoPage);
     }
+
 
     /**
      * Obtener detalle de solicitud con comparación
@@ -880,6 +886,30 @@ public class SolicitudAprobacionService {
     }
 
     // Métodos de mapeo DTO
+
+
+    private SolicitudAprobacionListadoDTO mapToListadoDTO(SolicitudAprobacion s) {
+        Emprendimientos e = s.getEmprendimiento();
+
+        return SolicitudAprobacionListadoDTO.builder()
+                .id(s.getId())
+                .emprendimientoId(e.getId())
+                .nombreEmprendimiento(e.getNombreComercial())
+                .tipoSolicitud(s.getTipoSolicitud().name())
+                .estadoSolicitud(s.getEstadoSolicitud().name())
+
+                .ciudadId(e.getCiudades().getId())
+                .nombreCiudad(e.getCiudades().getNombreCiudad())
+
+                .tipoEmprendimiento(e.getTiposEmprendimientos().getSubTipo())
+                .anioCreacion(e.getAnioCreacion())
+
+                .fechaSolicitud(s.getFechaSolicitud())
+                .nombreSolicitante(s.getUsuarioSolicitante().getNombre())
+                .build();
+    }
+
+
 
     private InformacionRepresentanteDTO mapRepresentanteToDTO(InformacionRepresentante rep) {
         return InformacionRepresentanteDTO.builder()

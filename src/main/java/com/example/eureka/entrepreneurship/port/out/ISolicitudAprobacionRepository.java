@@ -3,6 +3,8 @@ package com.example.eureka.entrepreneurship.port.out;
 import com.example.eureka.entrepreneurship.domain.model.Emprendimientos;
 import com.example.eureka.entrepreneurship.domain.model.SolicitudAprobacion;
 import com.example.eureka.auth.domain.Usuarios;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -14,8 +16,9 @@ import java.util.Optional;
 @Repository
 public interface ISolicitudAprobacionRepository extends JpaRepository<SolicitudAprobacion, Integer> {
 
-    List<SolicitudAprobacion> findByEstadoSolicitudOrderByFechaSolicitudAsc(
-            SolicitudAprobacion.EstadoSolicitud estado
+    Page<SolicitudAprobacion> findByEstadoSolicitudOrderByFechaSolicitudAsc(
+            SolicitudAprobacion.EstadoSolicitud estado,
+            Pageable pageable
     );
 
     List<SolicitudAprobacion> findByEmprendimientoOrderByFechaSolicitudDesc(
