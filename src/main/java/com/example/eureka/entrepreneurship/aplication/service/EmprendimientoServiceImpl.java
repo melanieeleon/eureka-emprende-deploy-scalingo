@@ -7,10 +7,8 @@ import com.example.eureka.autoevaluacion.port.out.IAutoevaluacionRepository;
 import com.example.eureka.entrepreneurship.domain.model.*;
 import com.example.eureka.entrepreneurship.infrastructure.dto.publico.EmprendimientoListaPublicoDTO;
 import com.example.eureka.entrepreneurship.infrastructure.dto.publico.MiniEmprendimientoDTO;
-import com.example.eureka.entrepreneurship.infrastructure.dto.response.CategoriaListadoDTO;
-import com.example.eureka.entrepreneurship.infrastructure.dto.response.EmprendimientoListadoResponseDTO;
-import com.example.eureka.entrepreneurship.infrastructure.dto.response.EmprendimientoPublicoDTO;
-import com.example.eureka.entrepreneurship.infrastructure.dto.response.MultimediaListadoDTO;
+import com.example.eureka.entrepreneurship.aplication.service.SolicitudAprobacionService;
+import com.example.eureka.entrepreneurship.infrastructure.dto.response.*;
 import com.example.eureka.entrepreneurship.infrastructure.dto.shared.*;
 import com.example.eureka.entrepreneurship.port.in.MultimediaService;
 import com.example.eureka.entrepreneurship.port.out.*;
@@ -68,7 +66,7 @@ public class EmprendimientoServiceImpl implements EmprendimientoService {
     private final ITiposEmprendimientoRepository tiposEmprendimientoRepository;
     private final IRepresentanteInformacionRepository informacionRepresentanteRepository;
     private final SolicitudAprobacionService solicitudAprobacionService;
-
+    private final IOpcionesPersonaJuridicaRepository opcionesPersonaJuridicaRepository;
     // NUEVAS DEPENDENCIAS PARA MULTIMEDIA
     private final IMultimediaRepository multimediaRepository;
     private final IEmprendimientoMultimediaRepository emprendimientoMultimediaRepository;
@@ -89,7 +87,7 @@ public class EmprendimientoServiceImpl implements EmprendimientoService {
     @Transactional
     public SolicitudAprobacion enviarParaAprobacion(Integer emprendimientoId, Usuarios usuario) {
         log.info("Enviando emprendimiento {} para aprobación", emprendimientoId);
-        EmprendimientoCompletoDTO datosCompletos = solicitudAprobacionService
+        EmprendimientoDetallesDTO datosCompletos = solicitudAprobacionService
                 .capturarEstadoCompleto(emprendimientoId);
         return solicitudAprobacionService.crearSolicitud(emprendimientoId, datosCompletos, usuario);
     }
@@ -201,70 +199,6 @@ public class EmprendimientoServiceImpl implements EmprendimientoService {
     }
 
 
-    /**
-     * NUEVO: Método para agregar multimedia al emprendimiento
-     */
-   /** private void agregarMultimediaEmprendimiento(
-            Emprendimientos emprendimiento,
-            List<MultipartFile> archivos,
-            List<String> tipos) {
-
-        if (CollectionUtils.isEmpty(archivos)) {
-            log.debug("No hay archivos multimedia para agregar");
-            return;
-        }
-
-        log.debug("Agregando {} archivos multimedia al emprendimiento: {}",
-                archivos.size(), emprendimiento.getId());
-
-        for (int i = 0; i < archivos.size(); i++) {
-            MultipartFile archivo = archivos.get(i);
-            String tipo = "GALERIA";
-            for(String tp: tipos){
-                String nombre = archivo.getOriginalFilename();
-                if (nombre == null || !nombre.contains("-")) {
-                    continue;
-                }
-
-                // Separar antes del guion
-                String prefijo = nombre.substring(0, nombre.indexOf("-"));  // Ej: "Portada"
-
-                if (tipo.equalsIgnoreCase(prefijo)) {
-                    System.out.println("Archivo " + nombre + " es del tipo: " + tipo);
-                    tipo = tp;
-                    break;
-                }
-            }
-
-            try {
-                // 1. Subir archivo a S3
-                String urlArchivo = fileStorageService.uploadFile(archivo);
-
-                // 2. Crear entidad Multimedia
-                Multimedia multimedia = new Multimedia();
-                multimedia.setUrlArchivo(urlArchivo);
-                multimedia.setNombreActivo(archivo.getOriginalFilename());
-
-                // Guardar multimedia
-                multimedia = multimediaRepository.save(multimedia);
-
-                // 3. Crear relación emprendimiento-multimedia
-                EmprendimientoMultimedia empMultimedia = new EmprendimientoMultimedia();
-                empMultimedia.setEmprendimiento(emprendimiento);
-                empMultimedia.setMultimedia(multimedia);
-                empMultimedia.setTipo(tipo); // "LOGO", "PORTADA", "GALERIA", etc.
-
-                emprendimientoMultimediaRepository.save(empMultimedia);
-
-                log.info("Archivo subido exitosamente: {} - Tipo: {}", urlArchivo, tipo);
-
-            } catch (IOException e) {
-                log.error("Error al subir archivo: {}", archivo.getOriginalFilename(), e);
-                throw new RuntimeException("Error al subir archivo multimedia: " + e.getMessage());
-            }
-        }
-    }*/
-
     private Emprendimientos crearEmprendimiento(EmprendimientoDTO emprendimientoDTO, Usuarios usuario, String tipoAccion) {
         log.debug("Creando emprendimiento con nombre: {}", emprendimientoDTO.getNombreComercialEmprendimiento());
 
@@ -276,8 +210,16 @@ public class EmprendimientoServiceImpl implements EmprendimientoService {
                 .findById(emprendimientoDTO.getTipoEmprendimientoId())
                 .orElseThrow(() -> new EntityNotFoundException(
                         "Tipo de emprendimiento no encontrado con ID: " + emprendimientoDTO.getTipoEmprendimientoId()));
+        
 
         Emprendimientos emprendimiento = new Emprendimientos();
+        if (emprendimientoDTO.getTipoPersonaJuridicaId() != null) {
+            OpcionesPersonaJuridica personaJuridica = opcionesPersonaJuridicaRepository
+                    .findById(emprendimientoDTO.getTipoPersonaJuridicaId())
+                    .orElseThrow(() -> new EntityNotFoundException(
+                            "Tipo persona jurídica no encontrado con ID: " + emprendimientoDTO.getTipoPersonaJuridicaId()));
+            emprendimiento.setTipoPersonaJuridica(personaJuridica);
+        }
         emprendimiento.setNombreComercial(emprendimientoDTO.getNombreComercialEmprendimiento());
         emprendimiento.setAnioCreacion(emprendimientoDTO.getFechaCreacion());
         emprendimiento.setActivoEmprendimiento(emprendimientoDTO.getEstadoEmpredimiento());
@@ -610,6 +552,7 @@ public class EmprendimientoServiceImpl implements EmprendimientoService {
                 emprendimientoMultimediaRepository.findByEmprendimientoId(id)
                         .stream()
                         .map(m -> new MultimediaListadoDTO(
+                                m.getMultimedia().getId(),
                                 m.getMultimedia().getNombreActivo(),
                                 m.getMultimedia().getUrlArchivo()
                         ))
@@ -719,6 +662,7 @@ public class EmprendimientoServiceImpl implements EmprendimientoService {
             dto.setMultimedia(
                     ems.stream()
                             .map(em -> new MultimediaListadoDTO(
+                                    em.getMultimedia().getId(),
                                     em.getMultimedia().getNombreActivo(),
                                     em.getMultimedia().getUrlArchivo()
                             ))
@@ -764,6 +708,7 @@ public class EmprendimientoServiceImpl implements EmprendimientoService {
             dto.setMultimedia(
                     ems.stream()
                             .map(em -> new MultimediaListadoDTO(
+                                    em.getMultimedia().getId(),
                                     em.getMultimedia().getNombreActivo(),
                                     em.getMultimedia().getUrlArchivo()
                             ))

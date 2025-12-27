@@ -3,6 +3,7 @@ package com.example.eureka.entrepreneurship.domain.model;
 import com.example.eureka.auth.domain.Usuarios;
 import com.example.eureka.general.domain.model.Categorias;
 import com.example.eureka.general.domain.model.Ciudades;
+import com.example.eureka.general.domain.model.OpcionesPersonaJuridica;
 import com.example.eureka.general.domain.model.TiposEmprendimientos;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -67,6 +68,11 @@ public class Emprendimientos {
 
     @OneToMany(mappedBy = "emprendimiento", fetch = FetchType.LAZY)
     private List<EmprendimientoMultimedia> multimedia;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_tipo_persona_juridica")
+    private OpcionesPersonaJuridica tipoPersonaJuridica;
+
 
 
 

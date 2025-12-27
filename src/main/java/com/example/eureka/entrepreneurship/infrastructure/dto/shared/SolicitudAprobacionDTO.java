@@ -19,8 +19,6 @@ public class SolicitudAprobacionDTO {
     private String nombreEmprendimiento;
     private SolicitudAprobacion.TipoSolicitud tipoSolicitud;
     private SolicitudAprobacion.EstadoSolicitud estadoSolicitud;
-    private Map<String, Object> datosPropuestos;
-    private Map<String, Object> datosOriginales;
     private String observaciones;
     private String motivoRechazo;
     private LocalDateTime fechaSolicitud;

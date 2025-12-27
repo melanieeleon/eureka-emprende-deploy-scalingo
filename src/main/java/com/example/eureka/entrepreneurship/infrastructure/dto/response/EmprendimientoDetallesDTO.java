@@ -1,5 +1,7 @@
-package com.example.eureka.entrepreneurship.infrastructure.dto.shared;
+package com.example.eureka.entrepreneurship.infrastructure.dto.response;
 
+import com.example.eureka.entrepreneurship.infrastructure.dto.shared.*;
+import com.example.eureka.general.infrastructure.dto.CiudadDTO;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -8,42 +10,36 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDateTime;
 import java.util.List;
 
-/**
- * DTO que contiene TODOS los datos del emprendimiento y sus relaciones
- * Se usa para guardar en JSONB en solicitudes_aprobacion
- */
-import java.util.List;
-
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class EmprendimientoCompletoDTO {
+public class EmprendimientoDetallesDTO {
 
-    // Datos básicos del emprendimiento
     private String nombreComercial;
     private LocalDateTime anioCreacion;
     private Boolean activoEmprendimiento;
     private Boolean aceptaDatosPublicos;
     private Integer tipoEmprendimientoId;
-
+    private String tipoEmprendimiento;
     private Integer tipoPersonaJuridicaId;
     private String tipoPersonaJuridicaDescripcion;
-    private Integer ciudadId;
+    private LocalDateTime fechaCreacion;
+    private LocalDateTime fechaActualizacion;
+    private CiudadDTO ciudad;
 
-    // Información del representante (si existe)
     private InformacionRepresentanteDTO informacionRepresentante;
-
-    // Relaciones
-    private List<EmprendimientoCategoriaDTO> categorias;
+    private List<CategoriaListadoDTO> categorias;
     private List<EmprendimientoDescripcionDTO> descripciones;
+    private List<MultimediaListadoDTO> multimedia;
+
     private List<EmprendimientoMetricasDTO> metricas;
     private List<EmprendimientoPresenciaDigitalDTO> presenciasDigitales;
     private List<EmprendimientoDeclaracionesDTO> declaracionesFinales;
     private List<EmprendimientoParticipacionDTO> participacionesComunidad;
 
-    // NUEVO: multimedia
-    private List<MultimediaDTO> multimedia;
 
-    private UsuarioDTO usuario;
+
+
+
 }

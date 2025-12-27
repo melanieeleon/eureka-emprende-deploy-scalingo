@@ -11,9 +11,9 @@ import java.util.List;
 public interface IOpcionesPersonaJuridicaRepository extends JpaRepository<OpcionesPersonaJuridica,Integer> {
 
     @Query("SELECT o FROM OpcionesPersonaJuridica as o  where o.estado = TRUE")
-    List<OpcionesPersonaJuridica> findAll();
+    List<OpcionesPersonaJuridica> findAllByEstadoTrue();
 
     @Query("SELECT o FROM OpcionesPersonaJuridica as o where o.id=:id and o.estado = TRUE")
-    OpcionesPersonaJuridica findById(int id);
+    OpcionesPersonaJuridica findByIdAndEstadoTrue(Integer id);
 
 }

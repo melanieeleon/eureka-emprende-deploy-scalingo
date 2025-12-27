@@ -1,5 +1,6 @@
 package com.example.eureka.entrepreneurship.infrastructure.controller;
 
+import com.example.eureka.entrepreneurship.infrastructure.dto.response.EmprendimientoDetallesDTO;
 import com.example.eureka.entrepreneurship.infrastructure.dto.response.SolicitudAprobacionListadoDTO;
 import com.example.eureka.entrepreneurship.infrastructure.dto.shared.EmprendimientoCompletoDTO;
 import com.example.eureka.entrepreneurship.infrastructure.dto.shared.SolicitudAprobacionDTO;
@@ -50,7 +51,7 @@ public class SolicitudAprobacionController {
     @PostMapping("/emprendimiento/{id}/enviar")
     public ResponseEntity<?> enviarParaAprobacion(
             @PathVariable Integer id,
-            @RequestBody EmprendimientoCompletoDTO datosCompletos,
+            @RequestBody EmprendimientoDetallesDTO datosCompletos,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
         Usuarios usuario = userDetails.getUsuario();
 
@@ -78,7 +79,7 @@ public class SolicitudAprobacionController {
     @PutMapping("/{solicitudId}/modificar-reenviar")
     public ResponseEntity<?> modificarYReenviar(
             @PathVariable Integer solicitudId,
-            @RequestBody EmprendimientoCompletoDTO datosActualizados,
+            @RequestBody EmprendimientoDetallesDTO  datosActualizados,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
         Usuarios usuario = userDetails.getUsuario();
         try {

@@ -1,5 +1,6 @@
 package com.example.eureka.entrepreneurship.infrastructure.dto.shared;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -8,6 +9,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class InformacionRepresentanteDTO {
 
     private Integer id;
@@ -24,5 +26,4 @@ public class InformacionRepresentanteDTO {
     private String nombrePariente;
     private String areaPariente;
     private String integrantesEquipo;
-    private Integer emprendimientoId;
 }

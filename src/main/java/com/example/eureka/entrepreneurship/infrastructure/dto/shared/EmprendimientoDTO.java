@@ -27,11 +27,13 @@ public class EmprendimientoDTO {
 
     private Boolean estadoEmpredimiento;
 
+    private Integer tipoEmprendimientoId;
 
     private String tipoEmprendimiento;
 
-    private Integer tipoEmprendimientoId;
-
     private Boolean datosPublicos;
+
+    private Integer tipoPersonaJuridicaId;
+
 
 }

@@ -3,10 +3,16 @@ package com.example.eureka.entrepreneurship.aplication.service;
 import com.example.eureka.auth.domain.Usuarios;
 import com.example.eureka.auth.port.out.IUserRepository;
 import com.example.eureka.entrepreneurship.domain.model.*;
+import com.example.eureka.entrepreneurship.infrastructure.dto.response.CategoriaListadoDTO;
+import com.example.eureka.entrepreneurship.infrastructure.dto.response.EmprendimientoDetallesDTO;
+import com.example.eureka.entrepreneurship.infrastructure.dto.response.MultimediaListadoDTO;
 import com.example.eureka.entrepreneurship.infrastructure.dto.response.SolicitudAprobacionListadoDTO;
 import com.example.eureka.entrepreneurship.infrastructure.dto.shared.*;
+import com.example.eureka.entrepreneurship.infrastructure.mappers.EmprendimientoMapper;
 import com.example.eureka.entrepreneurship.port.out.*;
 import com.example.eureka.general.domain.model.*;
+import com.example.eureka.general.infrastructure.dto.CiudadDTO;
+import com.example.eureka.general.infrastructure.dto.ProvinciaDTO;
 import com.example.eureka.general.port.out.*;
 import com.example.eureka.metricas.domain.MetricasBasicas;
 import com.example.eureka.shared.enums.EstadoEmprendimiento;
@@ -45,6 +51,7 @@ public class SolicitudAprobacionService {
     private final IEmprendimientoDeclaracionesRepository emprendimientoDeclaracionesRepository;
     private final IEmprendimientoParticicipacionComunidadRepository emprendimientoParticicipacionComunidadRepository;
     private final IRepresentanteInformacionRepository informacionRepresentanteRepository;
+    private final IEmprendimientoMultimediaRepository  emprendimientoMultimediaRepository;
     private final ICiudadesRepository ciudadesRepository;
     private final ITiposEmprendimientoRepository tiposEmprendimientoRepository;
     private final ITiposMetricasRepository tiposMetricasRepository;
@@ -58,74 +65,129 @@ public class SolicitudAprobacionService {
     /**
      * Captura el estado completo actual del emprendimiento (todas las relaciones)
      */
-    public EmprendimientoCompletoDTO capturarEstadoCompleto(Integer emprendimientoId) {
+    public EmprendimientoDetallesDTO capturarEstadoCompleto(Integer emprendimientoId) {
         log.debug("Capturando estado completo del emprendimiento: {}", emprendimientoId);
 
         Emprendimientos emp = emprendimientosRepository.findById(emprendimientoId)
                 .orElseThrow(() -> new EntityNotFoundException("Emprendimiento no encontrado"));
 
-        EmprendimientoCompletoDTO dto = new EmprendimientoCompletoDTO();
+        EmprendimientoDetallesDTO dto = new EmprendimientoDetallesDTO();
 
         // Datos básicos
         dto.setNombreComercial(emp.getNombreComercial());
         dto.setAnioCreacion(emp.getAnioCreacion());
         dto.setActivoEmprendimiento(emp.getActivoEmprendimiento());
         dto.setAceptaDatosPublicos(emp.getAceptaDatosPublicos());
-        dto.setTipoEmprendimientoId(emp.getTiposEmprendimientos() != null ?
-                emp.getTiposEmprendimientos().getId() : null);
-        dto.setCiudadId(emp.getCiudades() != null ? emp.getCiudades().getId() : null);
+        dto.setTipoEmprendimientoId(
+                emp.getTiposEmprendimientos() != null ? emp.getTiposEmprendimientos().getId() : null
+        );
+        dto.setTipoEmprendimiento(
+                emp.getTiposEmprendimientos() != null ? emp.getTiposEmprendimientos().getSubTipo() : null
+        );
+
+        if (emp.getTipoPersonaJuridica() != null) {
+            dto.setTipoPersonaJuridicaId(emp.getTipoPersonaJuridica().getId().intValue());
+            dto.setTipoPersonaJuridicaDescripcion(emp.getTipoPersonaJuridica().getDescripcion());
+        }
+
+        dto.setFechaCreacion(emp.getFechaCreacion());
+        dto.setFechaActualizacion(emp.getFechaActualizacion());
+
+        // Ciudad -> CiudadDTO
+        if (emp.getCiudades() != null) {
+            CiudadDTO ciudadDTO = new CiudadDTO();
+            ciudadDTO.setId(emp.getCiudades().getId());
+            ciudadDTO.setNombreCiudad(emp.getCiudades().getNombreCiudad());
+
+            ProvinciaDTO provDTO = new ProvinciaDTO();
+            provDTO.setId(emp.getCiudades().getProvincias().getId());
+            provDTO.setNombre(emp.getCiudades().getProvincias().getNombre());
+            provDTO.setActivo(emp.getCiudades().getProvincias().getActivo());
+
+            ciudadDTO.setProvincia(provDTO);
+            dto.setCiudad(ciudadDTO);
+        }
 
         // Información del representante
-        InformacionRepresentante rep = informacionRepresentanteRepository
-                .findFirstByEmprendimientoId(emprendimientoId);
+        InformacionRepresentante rep =
+                informacionRepresentanteRepository.findFirstByEmprendimientoId(emprendimientoId);
         if (rep != null) {
             dto.setInformacionRepresentante(mapRepresentanteToDTO(rep));
         }
 
-        // Categorías
-        List<EmprendimientoCategorias> categorias = emprendimientoCategoriasRepository
-                .findByEmprendimientoId(emprendimientoId);
-        dto.setCategorias(categorias.stream()
-                .map(this::mapCategoriaToDTO)
-                .collect(Collectors.toList()));
+        // Categorías -> List<CategoriaListadoDTO>
+        List<EmprendimientoCategorias> categorias =
+                emprendimientoCategoriasRepository.findByEmprendimientoIdWithCategoria(emprendimientoId);
+        dto.setCategorias(
+                categorias.stream()
+                        .map(ec -> new CategoriaListadoDTO(
+                                ec.getCategoria().getId(),
+                                ec.getCategoria().getNombre()
+                        ))
+                        .collect(Collectors.toList())
+        );
 
         // Descripciones
-        List<DescripcionEmprendimiento> descripciones = emprendimientosDescripcionRepository
-                .findByEmprendimientoId(emprendimientoId);
-        dto.setDescripciones(descripciones.stream()
-                .map(this::mapDescripcionToDTO)
-                .collect(Collectors.toList()));
+        List<DescripcionEmprendimiento> descripciones =
+                emprendimientosDescripcionRepository.findByEmprendimientoId(emprendimientoId);
+        dto.setDescripciones(
+                descripciones.stream()
+                        .map(this::mapDescripcionToDTO)   // aquí puedes extender el DTO si quieres más campos
+                        .collect(Collectors.toList())
+        );
 
         // Métricas
-        List<EmprendimientoMetricas> metricas = emprendimientoMetricaRepository
-                .findByEmprendimientoId(emprendimientoId);
-        dto.setMetricas(metricas.stream()
-                .map(this::mapMetricaToDTO)
-                .collect(Collectors.toList()));
+        List<EmprendimientoMetricas> metricas =
+                emprendimientoMetricaRepository.findByEmprendimientoId(emprendimientoId);
+        dto.setMetricas(
+                metricas.stream()
+                        .map(this::mapMetricaToDTO)
+                        .collect(Collectors.toList())
+        );
 
-        // Presencia Digital
-        List<TiposPresenciaDigital> presencias = emprendimientoPresenciaDigitalRepository
-                .findByEmprendimientoId(emprendimientoId);
-        dto.setPresenciasDigitales(presencias.stream()
-                .map(this::mapPresenciaDigitalToDTO)
-                .collect(Collectors.toList()));
+        // Presencia digital
+        List<TiposPresenciaDigital> presencias =
+                emprendimientoPresenciaDigitalRepository.findByEmprendimientoId(emprendimientoId);
+        dto.setPresenciasDigitales(
+                presencias.stream()
+                        .map(this::mapPresenciaDigitalToDTO)
+                        .collect(Collectors.toList())
+        );
 
         // Declaraciones
-        List<EmprendimientoDeclaraciones> declaraciones = emprendimientoDeclaracionesRepository
-                .findByEmprendimientoId(emprendimientoId);
-        dto.setDeclaracionesFinales(declaraciones.stream()
-                .map(this::mapDeclaracionToDTO)
-                .collect(Collectors.toList()));
+        List<EmprendimientoDeclaraciones> declaraciones =
+                emprendimientoDeclaracionesRepository.findByEmprendimientoId(emprendimientoId);
+        dto.setDeclaracionesFinales(
+                declaraciones.stream()
+                        .map(this::mapDeclaracionToDTO)
+                        .collect(Collectors.toList())
+        );
 
-        // Participación
-        List<EmprendimientoParticipacion> participaciones = emprendimientoParticicipacionComunidadRepository
-                .findByEmprendimientoId(emprendimientoId);
-        dto.setParticipacionesComunidad(participaciones.stream()
-                .map(this::mapParticipacionToDTO)
-                .collect(Collectors.toList()));
+        // Participación comunidad
+        List<EmprendimientoParticipacion> participaciones =
+                emprendimientoParticicipacionComunidadRepository.findByEmprendimientoId(emprendimientoId);
+        dto.setParticipacionesComunidad(
+                participaciones.stream()
+                        .map(this::mapParticipacionToDTO)
+                        .collect(Collectors.toList())
+        );
+
+        // Multimedia -> List<MultimediaListadoDTO>
+        List<EmprendimientoMultimedia> multimediaList =
+                emprendimientoMultimediaRepository.findByEmprendimientoId(emprendimientoId);
+        dto.setMultimedia(
+                multimediaList.stream()
+                        .map(em -> new MultimediaListadoDTO(
+                                em.getMultimedia().getId(),
+                                em.getMultimedia().getNombreActivo(),
+                                em.getMultimedia().getUrlArchivo()
+                        ))
+                        .collect(Collectors.toList())
+        );
 
         return dto;
     }
+
 
     /**
      * Crear solicitud con todos los datos propuestos
@@ -133,7 +195,7 @@ public class SolicitudAprobacionService {
     @Transactional
     public SolicitudAprobacion crearSolicitud(
             Integer emprendimientoId,
-            EmprendimientoCompletoDTO datosCompletos,
+            EmprendimientoDetallesDTO datosCompletos,
             Usuarios usuario) {
 
         log.info("Creando solicitud para emprendimiento: {}", emprendimientoId);
@@ -151,7 +213,7 @@ public class SolicitudAprobacionService {
 
         // Determinar tipo de solicitud
         SolicitudAprobacion.TipoSolicitud tipoSolicitud;
-        EmprendimientoCompletoDTO datosOriginales = null;
+        EmprendimientoDetallesDTO datosOriginales = null;
 
         String estadoActual = emprendimiento.getEstadoEmprendimiento();
 
@@ -222,7 +284,7 @@ public class SolicitudAprobacionService {
         VistaEmprendedorDTO vista = new VistaEmprendedorDTO();
 
         // Datos actuales
-        EmprendimientoCompletoDTO datosActuales = capturarEstadoCompleto(emprendimientoId);
+        EmprendimientoDetallesDTO datosActuales = capturarEstadoCompleto(emprendimientoId);
         vista.setDatosActuales(datosActuales);
         vista.setEstadoEmprendimiento(emprendimiento.getEstadoEmprendimiento());
 
@@ -234,9 +296,9 @@ public class SolicitudAprobacionService {
             SolicitudAprobacion solicitud = solicitudActiva.get();
 
             try {
-                EmprendimientoCompletoDTO datosPropuestos = objectMapper.convertValue(
+                EmprendimientoDetallesDTO datosPropuestos = objectMapper.convertValue(
                         solicitud.getDatosPropuestos(),
-                        EmprendimientoCompletoDTO.class
+                        EmprendimientoDetallesDTO.class
                 );
 
                 vista.setDatosPropuestos(datosPropuestos);
@@ -269,9 +331,9 @@ public class SolicitudAprobacionService {
 
         try {
             // Deserializar datos propuestos
-            EmprendimientoCompletoDTO datosNuevos = objectMapper.convertValue(
+            EmprendimientoDetallesDTO  datosNuevos = objectMapper.convertValue(
                     solicitud.getDatosPropuestos(),
-                    EmprendimientoCompletoDTO.class
+                    EmprendimientoDetallesDTO.class
             );
 
             // APLICAR TODOS LOS CAMBIOS
@@ -403,7 +465,7 @@ public class SolicitudAprobacionService {
      * Modificar datos propuestos y reenviar
      */
     @Transactional
-    public void modificarYReenviar(Integer solicitudId, EmprendimientoCompletoDTO datosActualizados, Usuarios usuario) {
+    public void modificarYReenviar(Integer solicitudId, EmprendimientoDetallesDTO  datosActualizados, Usuarios usuario) {
         log.info("Modificando y reenviando solicitud: {}", solicitudId);
 
         SolicitudAprobacion solicitud = solicitudRepository.findById(solicitudId)
@@ -448,7 +510,7 @@ public class SolicitudAprobacionService {
      * Aplicar TODOS los cambios al emprendimiento y sus relaciones
      */
     @Transactional
-    protected void aplicarCambiosCompletos(Emprendimientos emprendimiento, EmprendimientoCompletoDTO datos) {
+    protected void  aplicarCambiosCompletos(Emprendimientos emprendimiento, EmprendimientoDetallesDTO  datos) {
         log.debug("Aplicando cambios completos al emprendimiento: {}", emprendimiento.getId());
 
         Integer empId = emprendimiento.getId();
@@ -459,8 +521,8 @@ public class SolicitudAprobacionService {
         emprendimiento.setActivoEmprendimiento(datos.getActivoEmprendimiento());
         emprendimiento.setAceptaDatosPublicos(datos.getAceptaDatosPublicos());
 
-        if (datos.getCiudadId() != null) {
-            Ciudades ciudad = ciudadesRepository.findById(datos.getCiudadId())
+        if (datos.getCiudad().getId() != null) {
+            Ciudades ciudad = ciudadesRepository.findById(datos.getCiudad().getId())
                     .orElseThrow(() -> new EntityNotFoundException("Ciudad no encontrada"));
             emprendimiento.setCiudades(ciudad);
         }
@@ -503,7 +565,7 @@ public class SolicitudAprobacionService {
             emprendimientoCategoriasRepository.deleteEmprendimientoCategoriasByEmprendimientoId(empId);
 
             datos.getCategorias().forEach(catDTO -> {
-                Categorias categoria = categoriasRepository.findById(catDTO.getCategoria().getId())
+                Categorias categoria = categoriasRepository.findById(catDTO.getId())
                         .orElseThrow(() -> new EntityNotFoundException("Categoría no encontrada"));
 
                 EmprendimientoCategorias cat = new EmprendimientoCategorias();
@@ -733,10 +795,27 @@ public class SolicitudAprobacionService {
 
         Map<String, Object> detalle = new HashMap<>();
         detalle.put("solicitud", mapSolicitudToDTO(solicitud));
-        detalle.put("datosOriginales", solicitud.getDatosOriginales());
-        detalle.put("datosPropuestos", solicitud.getDatosPropuestos());
 
+        // ===== PROpuestos =====
+        Map<String, Object> propuestosMap = new HashMap<>(solicitud.getDatosPropuestos());
+        propuestosMap.remove("usuario");
+
+        EmprendimientoDetallesDTO propuestosDto =
+                objectMapper.convertValue(propuestosMap, EmprendimientoDetallesDTO.class);
+
+
+        detalle.put("datosPropuestos", propuestosDto);
+
+        // ===== ORIginAles (solo ACTUALIZACION) =====
         if (solicitud.getDatosOriginales() != null) {
+            Map<String, Object> originalesMap = new HashMap<>(solicitud.getDatosOriginales());
+            originalesMap.remove("usuario");
+
+            EmprendimientoDetallesDTO originalesDto =
+                    objectMapper.convertValue(originalesMap, EmprendimientoDetallesDTO.class);
+
+            detalle.put("datosOriginales", originalesDto);
+
             detalle.put("diferencias", calcularDiferencias(
                     solicitud.getDatosOriginales(),
                     solicitud.getDatosPropuestos()
@@ -745,6 +824,35 @@ public class SolicitudAprobacionService {
 
         return detalle;
     }
+
+
+    /**
+     * Transforma categorias en el map:
+     * de  [{ "categoria": { "id", "nombre", ... }, ... }]
+     * a   [{ "id", "nombre" }]
+     */
+    @SuppressWarnings("unchecked")
+    private void ajustarCategorias(Map<String, Object> map) {
+        Object raw = map.get("categorias");
+        if (!(raw instanceof List<?> listaRaw)) return;
+
+        List<Map<String, Object>> categoriasPlanas = listaRaw.stream()
+                .filter(item -> item instanceof Map)
+                .map(item -> (Map<String, Object>) item)
+                .map(item -> {
+                    Map<String, Object> categoria = (Map<String, Object>) item.get("categoria");
+                    if (categoria == null) return null;
+                    Map<String, Object> plano = new HashMap<>();
+                    plano.put("id", categoria.get("id"));
+                    plano.put("nombre", categoria.get("nombre"));
+                    return plano;
+                })
+                .filter(plano -> plano != null)
+                .toList();
+
+        map.put("categorias", categoriasPlanas);
+    }
+
 
     /**
      * Obtener historial de una solicitud
@@ -975,6 +1083,12 @@ public class SolicitudAprobacionService {
         EmprendimientoDescripcionDTO dto = new EmprendimientoDescripcionDTO();
         dto.setIdDescripcion(desc.getDescripciones().getId());
         dto.setRespuesta(desc.getRespuesta());
+        dto.setIdEmprendimiento(
+                desc.getEmprendimiento() != null ? desc.getEmprendimiento().getId() : null
+        );
+        dto.setDescripcionBase(
+                desc.getDescripciones() != null ? desc.getDescripciones().getDescripcion() : null
+        );
         return dto;
     }
 
@@ -1008,8 +1122,12 @@ public class SolicitudAprobacionService {
         dto.setEmprendimientoId(part.getEmprendimiento().getId());
         dto.setOpcionParticipacionId(part.getOpcionParticipacion().getId());
         dto.setRespuesta(part.getRespuesta());
+        dto.setNombreOpcionParticipacion(
+                part.getOpcionParticipacion() != null ? part.getOpcionParticipacion().getOpcion() : null
+        );
         return dto;
     }
+
 
     private SolicitudAprobacionDTO mapSolicitudToDTO(SolicitudAprobacion solicitud) {
         return SolicitudAprobacionDTO.builder()
@@ -1018,8 +1136,6 @@ public class SolicitudAprobacionService {
                 .nombreEmprendimiento(solicitud.getEmprendimiento().getNombreComercial())
                 .tipoSolicitud(solicitud.getTipoSolicitud())
                 .estadoSolicitud(solicitud.getEstadoSolicitud())
-                .datosPropuestos(solicitud.getDatosPropuestos())
-                .datosOriginales(solicitud.getDatosOriginales())
                 .observaciones(solicitud.getObservaciones())
                 .motivoRechazo(solicitud.getMotivoRechazo())
                 .fechaSolicitud(solicitud.getFechaSolicitud())
