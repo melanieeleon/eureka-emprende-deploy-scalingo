@@ -14,4 +14,6 @@ public interface IOpcionRespuestaRepository {
 
     OpcionRespuesta save(OpcionRespuesta opcionRespuesta);
 
+    List<OpcionRespuesta> findByRespuestaId(Integer idRespuesta);
+
 }

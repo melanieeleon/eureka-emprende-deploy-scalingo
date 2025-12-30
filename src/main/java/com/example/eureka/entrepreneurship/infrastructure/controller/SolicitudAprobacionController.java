@@ -2,7 +2,6 @@ package com.example.eureka.entrepreneurship.infrastructure.controller;
 
 import com.example.eureka.entrepreneurship.infrastructure.dto.response.EmprendimientoDetallesDTO;
 import com.example.eureka.entrepreneurship.infrastructure.dto.response.SolicitudAprobacionListadoDTO;
-import com.example.eureka.entrepreneurship.infrastructure.dto.shared.EmprendimientoCompletoDTO;
 import com.example.eureka.entrepreneurship.infrastructure.dto.shared.SolicitudAprobacionDTO;
 import com.example.eureka.entrepreneurship.infrastructure.dto.shared.VistaEmprendedorDTO;
 import com.example.eureka.entrepreneurship.aplication.service.SolicitudAprobacionService;
@@ -72,6 +71,43 @@ public class SolicitudAprobacionController {
                     .body(Map.of("error", "Error al procesar solicitud"));
         }
     }
+
+    /**
+     * Guardar propuesta de cambios para un emprendimiento PUBLICADO
+     * (crea solicitud de ACTUALIZACION o modifica cuando está EN_REVISION)
+     */
+    @PostMapping("/emprendimiento/{id}/propuesta")
+    public ResponseEntity<?> guardarPropuesta(
+            @PathVariable Integer id,
+            @RequestBody EmprendimientoDetallesDTO datosPropuestos,
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
+
+        Usuarios usuario = userDetails.getUsuario();
+
+        try {
+            log.info("Guardando propuesta para emprendimiento: {}", id);
+            var solicitud = solicitudService.guardarPropuesta(id, datosPropuestos, usuario);
+
+            SolicitudAprobacionDTO dto = SolicitudAprobacionDTO.builder()
+                    .id(solicitud.getId())
+                    .emprendimientoId(solicitud.getEmprendimiento().getId())
+                    .nombreEmprendimiento(solicitud.getEmprendimiento().getNombreComercial())
+                    .tipoSolicitud(solicitud.getTipoSolicitud())
+                    .estadoSolicitud(solicitud.getEstadoSolicitud())
+                    .fechaSolicitud(solicitud.getFechaSolicitud())
+                    .build();
+            return ResponseEntity.ok(dto);
+        } catch (IllegalStateException e) {
+            log.error("Error de estado al guardar propuesta: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Map.of("error", e.getMessage()));
+        } catch (Exception e) {
+            log.error("Error al guardar propuesta: {}", e.getMessage(), e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "Error al procesar la propuesta"));
+        }
+    }
+
 
     /**
      * Modificar y reenviar solicitud con observaciones

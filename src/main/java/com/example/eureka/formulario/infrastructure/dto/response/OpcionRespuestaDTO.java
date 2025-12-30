@@ -14,12 +14,13 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+
 public class OpcionRespuestaDTO {
-    private Integer id;
+    private Integer id;                     // id de OpcionRespuesta
     private Integer idRespuesta;
-    @JsonIgnore
-    private List<OpcionResponseDTO> opciones;
     private Integer idPregunta;
+    private String pregunta;               // texto de la pregunta
     private Integer valorescala;
     private Integer idEmprendimientos;
+    private List<OpcionResponseDTO> opciones;
 }

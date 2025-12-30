@@ -2,7 +2,6 @@ package com.example.eureka.entrepreneurship.aplication.service;
 
 import com.example.eureka.auth.domain.Usuarios;
 import com.example.eureka.auth.port.out.IUserRepository;
-import com.example.eureka.autoevaluacion.infrastructure.dto.RespuestaFormularioPreguntaDTO;
 import com.example.eureka.autoevaluacion.port.out.IAutoevaluacionRepository;
 import com.example.eureka.entrepreneurship.domain.model.*;
 import com.example.eureka.entrepreneurship.infrastructure.dto.publico.EmprendimientoListaPublicoDTO;
@@ -95,6 +94,16 @@ public class EmprendimientoServiceImpl implements EmprendimientoService {
     @Override
     public VistaEmprendedorDTO obtenerVistaEmprendedor(Integer emprendimientoId) {
         return solicitudAprobacionService.obtenerVistaEmprendedor(emprendimientoId);
+    }
+
+    @Override
+    @Transactional
+    public SolicitudAprobacion guardarPropuestaEmprendimiento(
+            Integer emprendimientoId,
+            EmprendimientoDetallesDTO dto,
+            Usuarios usuario) {
+
+        return solicitudAprobacionService.guardarPropuesta(emprendimientoId, dto, usuario);
     }
 
     @Override

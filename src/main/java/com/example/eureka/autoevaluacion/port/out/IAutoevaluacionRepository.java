@@ -1,10 +1,7 @@
 package com.example.eureka.autoevaluacion.port.out;
 
-import com.example.eureka.autoevaluacion.infrastructure.dto.RespuestaFormularioPreguntaDTO;
 import com.example.eureka.entrepreneurship.domain.model.Emprendimientos;
 import com.example.eureka.autoevaluacion.domain.model.Respuesta;
-import com.example.eureka.autoevaluacion.infrastructure.dto.EmprendimientoInfo;
-import com.example.eureka.autoevaluacion.infrastructure.dto.RespuestaFormularioDTO;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -16,7 +13,7 @@ public interface IAutoevaluacionRepository extends JpaRepository<Respuesta, Inte
 
     List<Respuesta> findAllByEmprendimientos(Emprendimientos emprendimientos);
 
-
+/**
     @Query(
             value = """
         SELECT 
@@ -62,43 +59,8 @@ public interface IAutoevaluacionRepository extends JpaRepository<Respuesta, Inte
         """,
             nativeQuery = true
     )
-    List<RespuestaFormularioDTO> obtenerRespuestasPorEmprendimiento(Long idEmprendimiento);
+    List<RespuestaFormularioDTO> obtenerRespuestasPorEmprendimiento(Long idEmprendimiento);*/
 
-
-
-    @Query(
-            value = """
-                SELECT
-                    f.nombre                      AS nombreFormulario,
-                    e.id                          AS idEmprendimiento,
-                    e.nombre_comercial            AS nombreComercial,
-                    p.id_pregunta                 AS idPregunta,
-                    p.pregunta                    AS pregunta
-                    AVG(COALESCE(ore.valor_escala, 0)) AS promedio
-                FROM respuesta r
-                         INNER JOIN formulario f
-                                    ON f.id_formulario = r.id_formulario
-                         INNER JOIN formulario_preguntas fp
-                                    ON f.id_formulario = fp.id_formulario
-                         INNER JOIN preguntas p
-                                    ON fp.id_pregunta = p.id_pregunta
-                         INNER JOIN opcion_respuesta ore
-                                    ON ore.id_respuesta = r.id_respuesta
-                         INNER JOIN tipo_formulario tpf ON f.id_tipo_formulario = tpf.id_tipo
-                         INNER JOIN emprendimientos e
-                                    ON e.id = r.id_emprendimiento
-                        WHERE tpf.nombre in ('EVALUACION_PRODUCTO', 'EVALUACION_SERVICIO')
-                GROUP BY
-                    f.nombre,
-                    e.id,
-                    e.nombre_comercial,
-                    p.id_pregunta,
-                    p.pregunta
-                ORDER BY
-                    p.pregunta
-        """,
-            nativeQuery = true
-    )
-    List<RespuestaFormularioPreguntaDTO> obtenerPreguntasValoracion();
+    Page<Respuesta> findAllByEsAutoEvaluacionTrue(Pageable pageable);
 
 }

@@ -224,7 +224,7 @@ public class SolicitudAprobacionService {
             // Capturar estado original para comparación
             datosOriginales = capturarEstadoCompleto(emprendimientoId);
         } else {
-            throw new IllegalStateException("El emprendimiento debe estar en estado BORRADOR o PUBLICADO");
+            throw new IllegalStateException("El emprendimiento debe estar en estado PENDIENTE_APROBACION o PUBLICADO");
         }
 
         // Crear solicitud
@@ -271,6 +271,47 @@ public class SolicitudAprobacionService {
         log.info("Solicitud creada exitosamente con ID: {}", solicitud.getId());
         return solicitud;
     }
+
+
+    @Transactional
+    public SolicitudAprobacion guardarPropuesta(
+            Integer emprendimientoId,
+            EmprendimientoDetallesDTO datosPropuestos,
+            Usuarios usuario) {
+
+        log.info("Guardando propuesta para emprendimiento: {}", emprendimientoId);
+
+        Emprendimientos emprendimiento = emprendimientosRepository.findById(emprendimientoId)
+                .orElseThrow(() -> new EntityNotFoundException("Emprendimiento no encontrado"));
+
+        // Solo permitir sobre PUBLICADO (actualización)
+        if (!EstadoEmprendimiento.PUBLICADO.name().equals(emprendimiento.getEstadoEmprendimiento())) {
+            throw new IllegalStateException("Solo se pueden proponer cambios sobre emprendimientos PUBLICADOS");
+        }
+
+        // Buscar solicitud activa (PENDIENTE o EN_REVISION, según tu query)
+        Optional<SolicitudAprobacion> solicitudActivaOpt =
+                solicitudRepository.findSolicitudActivaByEmprendimientoId(emprendimientoId);
+
+        if (solicitudActivaOpt.isEmpty()) {
+            // No hay solicitud activa → crear una nueva de ACTUALIZACION
+            return crearSolicitud(emprendimientoId, datosPropuestos, usuario);
+        }
+
+        SolicitudAprobacion solicitud = solicitudActivaOpt.get();
+
+        // Si está EN_REVISION, usa el flujo existente de modificarYReenviar
+        if (solicitud.getEstadoSolicitud() == SolicitudAprobacion.EstadoSolicitud.EN_REVISION) {
+            modificarYReenviar(solicitud.getId(), datosPropuestos, usuario);
+            // Volvemos a cargar por si quieres devolver actualizado
+            return solicitudRepository.findById(solicitud.getId())
+                    .orElseThrow(() -> new EntityNotFoundException("Solicitud no encontrada tras modificar"));
+        }
+
+        // Si está APROBADO o RECHAZADO, no debería haber sido devuelto como "activa"
+        throw new IllegalStateException("No se puede modificar una solicitud en estado " + solicitud.getEstadoSolicitud());
+    }
+
 
     /**
      * Obtener vista completa para el emprendedor
@@ -823,34 +864,6 @@ public class SolicitudAprobacionService {
         }
 
         return detalle;
-    }
-
-
-    /**
-     * Transforma categorias en el map:
-     * de  [{ "categoria": { "id", "nombre", ... }, ... }]
-     * a   [{ "id", "nombre" }]
-     */
-    @SuppressWarnings("unchecked")
-    private void ajustarCategorias(Map<String, Object> map) {
-        Object raw = map.get("categorias");
-        if (!(raw instanceof List<?> listaRaw)) return;
-
-        List<Map<String, Object>> categoriasPlanas = listaRaw.stream()
-                .filter(item -> item instanceof Map)
-                .map(item -> (Map<String, Object>) item)
-                .map(item -> {
-                    Map<String, Object> categoria = (Map<String, Object>) item.get("categoria");
-                    if (categoria == null) return null;
-                    Map<String, Object> plano = new HashMap<>();
-                    plano.put("id", categoria.get("id"));
-                    plano.put("nombre", categoria.get("nombre"));
-                    return plano;
-                })
-                .filter(plano -> plano != null)
-                .toList();
-
-        map.put("categorias", categoriasPlanas);
     }
 
 

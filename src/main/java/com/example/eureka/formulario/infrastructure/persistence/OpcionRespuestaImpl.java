@@ -32,4 +32,9 @@ public class OpcionRespuestaImpl implements IOpcionRespuestaRepository {
     public OpcionRespuesta save(OpcionRespuesta opcionRespuesta) {
         return opcionRespuestaJpaRepository.save(opcionRespuesta);
     }
+
+    @Override
+    public List<OpcionRespuesta> findByRespuestaId(Integer idRespuesta) {
+        return opcionRespuestaJpaRepository.findByRespuestaId(idRespuesta);
+    }
 }

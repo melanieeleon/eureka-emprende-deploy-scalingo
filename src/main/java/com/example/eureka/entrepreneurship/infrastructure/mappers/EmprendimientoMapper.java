@@ -232,29 +232,6 @@ public class EmprendimientoMapper {
                 .build();
     }
 
-    public static EmprendimientoCompletoDTO toCompletoDTO(Emprendimientos emprendimiento) {
-        if (emprendimiento == null) return null;
-        EmprendimientoCompletoDTO dto = new EmprendimientoCompletoDTO();
-        dto.setNombreComercial(emprendimiento.getNombreComercial());
-        dto.setAnioCreacion(emprendimiento.getAnioCreacion());
-        dto.setActivoEmprendimiento(emprendimiento.getActivoEmprendimiento());
-        dto.setAceptaDatosPublicos(emprendimiento.getAceptaDatosPublicos());
-        dto.setTipoEmprendimientoId(
-            emprendimiento.getTiposEmprendimientos() != null ? emprendimiento.getTiposEmprendimientos().getId() : null);
-        dto.setCiudadId(
-            emprendimiento.getCiudades() != null ? emprendimiento.getCiudades().getId() : null);
-        // Mapear usuario
-        if (emprendimiento.getUsuarios() != null) {
-            UsuarioDTO usuarioDTO = UsuarioDTO.builder()
-                .id(emprendimiento.getUsuarios().getId())
-                .nombre(emprendimiento.getUsuarios().getNombre())
-                .email(emprendimiento.getUsuarios().getCorreo())
-                .build();
-            dto.setUsuario(usuarioDTO);
-        }
-        // Mapear otras relaciones si es necesario...
-        return dto;
-    }
 
     public static EmprendimientoPublicoDTO toPublicoDTO(Emprendimientos e) {
         EmprendimientoPublicoDTO dto = new EmprendimientoPublicoDTO();
@@ -277,7 +254,7 @@ public class EmprendimientoMapper {
         }
         if (e.getTiposEmprendimientos() != null) {
             dto.setTipoEmprendimientoId(e.getTiposEmprendimientos().getId().intValue());
-            dto.setNombreTipoEmprendimiento(e.getTiposEmprendimientos().getTipo());
+            dto.setNombreTipoEmprendimiento(e.getTiposEmprendimientos().getSubTipo());
         }
 
         return dto;

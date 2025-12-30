@@ -21,11 +21,6 @@ interface FormularioJpaRepository extends JpaRepository<Formulario, Long> {
             "AND f.estado = 'ACTIVO'")
     Optional<Formulario> findByTipoFormularioNombre(@Param("tipoNombre") String tipoNombre);
 
-    // PASO 2: Cargar todas las opciones de las preguntas en una sola query
-    @Query("SELECT DISTINCT p FROM Pregunta p " +
-            "LEFT JOIN FETCH p.opciones o " +
-            "WHERE p IN :preguntas")
-    List<Pregunta> loadOpcionesForPreguntas(@Param("preguntas") Set<Pregunta> preguntas);
 
     @Query("SELECT DISTINCT f FROM Formulario f " +
             "LEFT JOIN FETCH f.tipoFormulario tf " +

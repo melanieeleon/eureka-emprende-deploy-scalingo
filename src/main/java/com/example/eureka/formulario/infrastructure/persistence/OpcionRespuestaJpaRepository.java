@@ -15,4 +15,7 @@ public interface OpcionRespuestaJpaRepository extends JpaRepository<OpcionRespue
     List<OpcionRespuesta> findAllByRespuesta(Respuesta respuesta);
 
     List<OpcionRespuesta> findAllByOpciones(Opciones opciones);
+    List<OpcionRespuesta> findByRespuestaId(Integer idRespuesta);
+
+
 }

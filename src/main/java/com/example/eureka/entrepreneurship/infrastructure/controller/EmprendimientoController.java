@@ -3,11 +3,13 @@ package com.example.eureka.entrepreneurship.infrastructure.controller;
 import com.example.eureka.auth.domain.Usuarios;
 import com.example.eureka.entrepreneurship.infrastructure.dto.publico.EmprendimientoListaPublicoDTO;
 import com.example.eureka.auth.aplication.services.UsuariosServiceImpl;
+import com.example.eureka.entrepreneurship.infrastructure.dto.response.EmprendimientoDetallesDTO;
 import com.example.eureka.entrepreneurship.infrastructure.dto.response.EmprendimientoListadoResponseDTO;
 import com.example.eureka.entrepreneurship.infrastructure.dto.response.EmprendimientoPublicoDTO;
 import com.example.eureka.entrepreneurship.infrastructure.dto.shared.EmprendimientoPorCategoriaDTO;
 import com.example.eureka.entrepreneurship.infrastructure.dto.request.EmprendimientoRequestDTO;
 import com.example.eureka.entrepreneurship.infrastructure.dto.shared.EmprendimientoResponseDTO;
+import com.example.eureka.entrepreneurship.infrastructure.dto.shared.SolicitudAprobacionDTO;
 import com.example.eureka.entrepreneurship.port.in.EmprendimientoService;
 import com.example.eureka.entrepreneurship.domain.model.SolicitudAprobacion;
 import com.example.eureka.shared.util.CustomUserDetails;
@@ -20,6 +22,7 @@ import io.swagger.v3.oas.annotations.StringToClassMapItem;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
@@ -32,6 +35,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.security.Principal;
 import java.util.List;
 import java.util.Map;
 
@@ -62,7 +66,7 @@ public class EmprendimientoController {
         }
     }
 
-    @GetMapping("publico/{id}")
+    @GetMapping("{id}/publico")
     public ResponseEntity<EmprendimientoPublicoDTO> obtenerEmprendimientoPublico(@PathVariable Integer id) {
         EmprendimientoPublicoDTO dto = emprendimientoService.obtenerEmprendimientoPublicoPorId(id);
         return ResponseEntity.ok(dto);
@@ -259,6 +263,7 @@ public class EmprendimientoController {
                     .body(Map.of("error", e.getMessage()));
         }
     }
+
 
     @PutMapping("/{id}/activar")
     @PreAuthorize("hasRole('ADMINISTRADOR')")

@@ -4,7 +4,7 @@ import com.example.eureka.autoevaluacion.infrastructure.dto.RespuestaResponseDTO
 import com.example.eureka.formulario.domain.model.Opciones;
 import com.example.eureka.autoevaluacion.domain.model.Respuesta;
 import com.example.eureka.formulario.infrastructure.dto.response.OpcionRespuestaDTO;
-import com.example.eureka.formulario.infrastructure.dto.response.OpcionRespuestaResponseDTO;
+import com.example.eureka.formulario.infrastructure.dto.response.OpcionRespuestaRequestDTO;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -12,11 +12,12 @@ import java.util.List;
 
 public interface OpcionRespuestaService {
 
-    Page<OpcionRespuestaDTO> findAllByRespuesta(Respuesta respuesta, Pageable pageable);
-
     Page<OpcionRespuestaDTO> findAllByOpciones(Opciones opciones, Pageable pageable);
 
-    List<OpcionRespuestaDTO> save(List<OpcionRespuestaResponseDTO> opcionRespuesta, Integer idUsuario);
+    Page<OpcionRespuestaDTO> findAllByRespuesta(Respuesta respuesta, Pageable pageable);
 
-    RespuestaResponseDTO generaRespuestaAutoevaluacion(RespuestaResponseDTO respuesta);
+    List<OpcionRespuestaDTO> save(List<OpcionRespuestaRequestDTO> opcionRespuesta);
+
+    /*
+    RespuestaResponseDTO generaRespuestaAutoevaluacion(RespuestaResponseDTO respuesta);*/
 }

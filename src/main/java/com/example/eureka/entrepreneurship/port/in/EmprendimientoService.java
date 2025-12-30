@@ -6,6 +6,7 @@ import com.example.eureka.auth.domain.Usuarios;
 import com.example.eureka.entrepreneurship.infrastructure.dto.publico.EmprendimientoListaPublicoDTO;
 import com.example.eureka.entrepreneurship.infrastructure.dto.publico.MiniEmprendimientoDTO;
 import com.example.eureka.entrepreneurship.infrastructure.dto.request.EmprendimientoRequestDTO;
+import com.example.eureka.entrepreneurship.infrastructure.dto.response.EmprendimientoDetallesDTO;
 import com.example.eureka.entrepreneurship.infrastructure.dto.response.EmprendimientoListadoResponseDTO;
 import com.example.eureka.entrepreneurship.infrastructure.dto.response.EmprendimientoPublicoDTO;
 import com.example.eureka.entrepreneurship.infrastructure.dto.shared.EmprendimientoDTO;
@@ -23,6 +24,11 @@ public interface EmprendimientoService {
     Integer estructuraEmprendimiento(EmprendimientoRequestDTO emprendimientoRequestDTO) throws Exception;
 
     List<MiniEmprendimientoDTO> obtenerEmprendimientos();
+
+    SolicitudAprobacion guardarPropuestaEmprendimiento(Integer emprendimientoId,
+                                                       EmprendimientoDetallesDTO dto,
+                                                       Usuarios usuario);
+
 
     List<EmprendimientoListaPublicoDTO> obtenesListaDeEmprendimientos(Usuarios usuario);
 

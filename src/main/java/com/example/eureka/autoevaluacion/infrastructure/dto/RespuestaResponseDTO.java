@@ -6,7 +6,9 @@ public class RespuestaResponseDTO {
 
     private Integer id;
     private Integer idFormulario;
+    private String formulario;
     private Integer idEmprendimiento;
+    private String emprendimiento;
     private LocalDateTime fechaRespuesta;
     private Integer idRespuesta;
     private Boolean esAutoevaluacion;

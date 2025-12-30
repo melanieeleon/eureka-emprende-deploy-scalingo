@@ -5,14 +5,17 @@ import com.example.eureka.metricas.domain.MetricasGenerales;
 import com.example.eureka.metricas.domain.MetricasPregunta;
 import com.example.eureka.metricas.infrastructure.dto.MetricaPreguntaDTO;
 import com.example.eureka.metricas.infrastructure.dto.MetricasGeneralesDTO;
+import com.example.eureka.metricas.infrastructure.dto.RankingGlobalDTO;
+import com.example.eureka.metricas.infrastructure.dto.RankingPreguntaDTO;
 import com.example.eureka.metricas.port.in.MetricasGeneralesService;
+import com.example.eureka.metricas.port.in.MetricasPreguntaService;
+import com.example.eureka.shared.util.PageResponseDTO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
@@ -26,6 +29,7 @@ public class MetricasGeneralesController {
 
 
     private final MetricasGeneralesService metricasGeneralesService;
+    private final MetricasPreguntaService metricasPreguntaService;
 
     @GetMapping("/emprendimiento/mayor-vista")
     public ResponseEntity<MetricasGeneralesDTO> mayorVista() {
@@ -59,6 +63,28 @@ public class MetricasGeneralesController {
             @RequestParam(value = "idEmprendimiento", required = false) Integer idEmprendimiento) {
 
         return ResponseEntity.ok(metricasGeneralesService.findAllByFechaRegistroIsBetweenOrEmprendimientos(fechaInicio, fechaFin, idEmprendimiento));
+    }
+
+
+    @GetMapping("/valoracion")
+    public ResponseEntity<PageResponseDTO<RankingGlobalDTO>> rankingGlobal(
+            @org.springdoc.core.annotations.ParameterObject Pageable pageable) {
+
+        Page<RankingGlobalDTO> page = metricasPreguntaService.obtenerRankingGlobal(pageable);
+        return ResponseEntity.ok(PageResponseDTO.fromPage(page));
+    }
+
+    // Ranking por pregunta (opcional: filtrar por tipo de emprendimiento)
+    @GetMapping("/pregunta/{idPregunta}")
+    public ResponseEntity<PageResponseDTO<RankingPreguntaDTO>> rankingPorPregunta(
+            @PathVariable Long idPregunta,
+            @RequestParam(required = false) Long idTipoEmprendimiento,
+            @org.springdoc.core.annotations.ParameterObject Pageable pageable) {
+
+        Page<RankingPreguntaDTO> page =
+                metricasPreguntaService.obtenerRankingPorPregunta(idPregunta, idTipoEmprendimiento, pageable);
+
+        return ResponseEntity.ok(PageResponseDTO.fromPage(page));
     }
 
 }
