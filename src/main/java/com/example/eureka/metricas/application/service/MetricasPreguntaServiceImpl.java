@@ -15,6 +15,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Slf4j
@@ -66,7 +67,7 @@ public class MetricasPreguntaServiceImpl implements MetricasPreguntaService {
         mp.setEmprendimientos(emp);
         mp.setPregunta(pregunta);
         mp.setValoracion(valoracion);
-        // mp.setFechaRegistro(LocalDateTime.now());
+        mp.setFechaRegistro(LocalDateTime.now());
 
         return metricasPreguntaRepository.save(mp);
         // Si mp ya tiene id -> UPDATE; si no -> INSERT (regla de JPA) [web:120][web:121]
