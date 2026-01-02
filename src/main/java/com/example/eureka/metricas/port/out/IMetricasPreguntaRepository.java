@@ -16,13 +16,16 @@ import java.util.Optional;
 
 public interface IMetricasPreguntaRepository extends JpaRepository<MetricasPregunta, Integer> {
 
-    List<MetricasPregunta> findAllByEmprendimientosAndPregunta(Emprendimientos emprendimientos, Pregunta pregunta);
 
     MetricasPregunta findTopByOrderByValoracionDesc();
 
     MetricasPregunta findTopByOrderByValoracionAsc();
 
-    Optional<MetricasPregunta> findByEmprendimientosAndPregunta(Emprendimientos emprendimientos, Pregunta pregunta);
+    Optional<MetricasPregunta> findByEmprendimientosAndPregunta(Emprendimientos emprendimientos,
+                                                                Pregunta pregunta);
+
+    List<MetricasPregunta> findAllByEmprendimientosAndPregunta(Emprendimientos emprendimientos,
+                                                               Pregunta pregunta);
 
     // Ranking global por emprendimiento (promedio de todas las preguntas)
     @Query("""

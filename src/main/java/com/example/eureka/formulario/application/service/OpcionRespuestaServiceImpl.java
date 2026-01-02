@@ -383,8 +383,7 @@ public class OpcionRespuestaServiceImpl implements OpcionRespuestaService {
 
             double promedioPregunta = total > 0 ? suma / total : 0.0;
 
-            // Actualiza/crea la métrica de esa pregunta
-            metricasPreguntaService.guardarOActualizar(emp, pregunta, promedioPregunta);
+            metricasPreguntaService.guardarOActualizar(emp, pregunta, promedioPregunta, total);
         }
     }
 

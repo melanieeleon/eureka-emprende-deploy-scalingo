@@ -38,4 +38,8 @@ public class MetricasPregunta {
 
     @Column(name = "fecha_registro", nullable = false)
     private LocalDateTime fechaRegistro;
+
+    @Column(name = "total_respuestas", nullable = false)
+    private Integer totalRespuestas;
+
 }

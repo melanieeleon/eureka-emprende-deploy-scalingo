@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Slf4j
 @Service
@@ -46,7 +47,7 @@ public class MetricasPreguntaServiceImpl implements MetricasPreguntaService {
         metricasPreguntaRepository.deleteById(id);
     }
 
-
+    @Override
     public List<MetricasPregunta> findAllByEmprendimientosAndPregunta(Emprendimientos emp, Pregunta pregunta) {
         // solo si aún quieres devolver lista
         return metricasPreguntaRepository.findAll().stream()
@@ -54,24 +55,51 @@ public class MetricasPreguntaServiceImpl implements MetricasPreguntaService {
                 .toList();
     }
 
-    // MÉTODO IMPORTANTE: guardar o actualizar la métrica de una pregunta
-    public MetricasPregunta guardarOActualizar(
-            Emprendimientos emp,
-            Pregunta pregunta,
-            Double valoracion) {
+    @Override
+    public Optional<MetricasPregunta> findByEmprendimientosAndPregunta(Emprendimientos emp,
+                                                                       Pregunta pregunta) {
+        return metricasPreguntaRepository.findByEmprendimientosAndPregunta(emp, pregunta);
+    }
 
-        MetricasPregunta mp = metricasPreguntaRepository
-                .findByEmprendimientosAndPregunta(emp, pregunta)
+    @Override
+    public MetricasPregunta guardarOActualizar(Emprendimientos emprendimiento,
+                                               Pregunta pregunta,
+                                               Double promedioNuevo,
+                                               Long cantidadRespuestasNuevas) {
+
+        MetricasPregunta metrica = metricasPreguntaRepository
+                .findByEmprendimientosAndPregunta(emprendimiento, pregunta)
                 .orElseGet(MetricasPregunta::new);
 
-        mp.setEmprendimientos(emp);
-        mp.setPregunta(pregunta);
-        mp.setValoracion(valoracion);
-        mp.setFechaRegistro(LocalDateTime.now());
+        metrica.setEmprendimientos(emprendimiento);
+        metrica.setPregunta(pregunta);
 
-        return metricasPreguntaRepository.save(mp);
-        // Si mp ya tiene id -> UPDATE; si no -> INSERT (regla de JPA) [web:120][web:121]
+        if (metrica.getId() == null) {
+            // primera vez: el promedio es el de esta valoración
+            metrica.setValoracion(promedioNuevo);
+            metrica.setTotalRespuestas(cantidadRespuestasNuevas.intValue());
+        } else {
+            // combinar promedio anterior con el nuevo
+            double promedioAnterior = metrica.getValoracion();
+            Integer totalAnterior = metrica.getTotalRespuestas();
+
+            double sumAnterior = promedioAnterior * totalAnterior;
+            double sumNueva = promedioNuevo * cantidadRespuestasNuevas;
+
+            Integer totalNuevo = totalAnterior + cantidadRespuestasNuevas.intValue();
+            double promedioAcumulado = totalNuevo > 0
+                    ? (sumAnterior + sumNueva) / totalNuevo
+                    : 0.0;
+
+            metrica.setValoracion(promedioAcumulado);
+            metrica.setTotalRespuestas(totalNuevo);
+        }
+
+        metrica.setFechaRegistro(LocalDateTime.now());
+
+        return metricasPreguntaRepository.save(metrica);
     }
+
 
     // NUEVO: ranking global
     @Override
