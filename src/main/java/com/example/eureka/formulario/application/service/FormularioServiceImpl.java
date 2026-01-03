@@ -1,9 +1,5 @@
 package com.example.eureka.formulario.application.service;
 
-import com.example.eureka.autoevaluacion.domain.model.Respuesta;
-import com.example.eureka.autoevaluacion.port.out.IAutoevaluacionRepository;
-import com.example.eureka.entrepreneurship.domain.model.Emprendimientos;
-import com.example.eureka.entrepreneurship.port.out.IEmprendimientosRepository;
 import com.example.eureka.formulario.domain.model.Formulario;
 import com.example.eureka.formulario.domain.model.FormularioPregunta;
 import com.example.eureka.formulario.infrastructure.dto.response.FormularioResponseDTO;
@@ -23,13 +19,9 @@ import java.util.stream.Collectors;
 public class FormularioServiceImpl implements FormularioService {
 
     private final IFormularioRepository formularioRepository;
-    private final IAutoevaluacionRepository respuestaRepository;
-    private final IEmprendimientosRepository emprendimientosRepository;
 
-    public FormularioServiceImpl(IFormularioRepository formularioRepository, IAutoevaluacionRepository respuestaRepository, IEmprendimientosRepository emprendimientosRepository) {
+    public FormularioServiceImpl(IFormularioRepository formularioRepository) {
         this.formularioRepository = formularioRepository;
-        this.respuestaRepository = respuestaRepository;
-        this.emprendimientosRepository = emprendimientosRepository;
     }
 
     @Override
@@ -40,30 +32,6 @@ public class FormularioServiceImpl implements FormularioService {
         return mapToDTO(formulario);
     }
 
-    @Override
-    public FormularioResponseDTO getFormularioById(Long id) {
-        Formulario formulario = formularioRepository.findById(id)
-                .orElseThrow(() -> new BusinessException("Formulario no encontrado con id: " + id));
-
-        return mapToDTO(formulario);
-    }
-
-    @Override
-    public List<FormularioResponseDTO> getFormularioByEmprendimiento(Integer idEmprendimiento) {
-        Emprendimientos emp = emprendimientosRepository.findById(idEmprendimiento).orElse(null);
-        List<Respuesta> respuesta = respuestaRepository.findAllByEmprendimientos(emp);
-        List<FormularioResponseDTO> lsFormulario = new ArrayList<>();
-        Set<Long> idsAgregados = new HashSet<>();
-        for(Respuesta r : respuesta){
-            Formulario fm = r.getFormulario();
-            if (fm != null && idsAgregados.add(fm.getIdFormulario())) {
-                FormularioResponseDTO fmResponseDTO = mapToDTO(fm);
-                lsFormulario.add(fmResponseDTO);
-            }
-        }
-
-        return lsFormulario;
-    }
 
     private FormularioResponseDTO mapToDTO(Formulario formulario) {
         FormularioResponseDTO dto = new FormularioResponseDTO();

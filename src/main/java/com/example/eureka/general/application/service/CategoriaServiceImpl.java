@@ -159,13 +159,12 @@ public class CategoriaServiceImpl implements CategoriaService {
                     System.err.println("Error al eliminar archivo de S3: " + e.getMessage());
                 }
             }
+            // Eliminar categoría
+            categoriasRepository.deleteById(id);
 
             // Eliminar registro de multimedia
             multimediaRepository.delete(categoria.getMultimedia());
         }
-
-        // Eliminar categoría
-        categoriasRepository.deleteById(id);
     }
 
     /**

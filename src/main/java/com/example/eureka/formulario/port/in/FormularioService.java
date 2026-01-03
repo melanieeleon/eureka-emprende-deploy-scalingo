@@ -8,8 +8,5 @@ public interface FormularioService {
 
     FormularioResponseDTO getFormularioByTipo(String tipoFormulario);
 
-    FormularioResponseDTO getFormularioById(Long id);
-
-    List<FormularioResponseDTO> getFormularioByEmprendimiento(Integer idEmprendimiento);
 
 }

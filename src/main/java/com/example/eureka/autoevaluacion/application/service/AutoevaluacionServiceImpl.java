@@ -101,22 +101,7 @@ public class AutoevaluacionServiceImpl implements AutoevaluacionService {
     public Respuesta findById(Long idRespuesta) {
         return valoracionRepository.findById(idRespuesta.intValue()).orElse(null);
     }
-/**
-    @Override
-    public Page<EmprendimientoInfo> obtenerEmprendimientos(Pageable pageable) {
-        return valoracionRepository.obtenerEmprendimientos(pageable);
-    }
 
-    @Override
-    public boolean existsByEmprendimientos(Emprendimientos emprendimientos) {
-        return valoracionRepository.existsByEmprendimientos(emprendimientos);
-    }
-
-    @Override
-    public List<RespuestaFormularioDTO> obtenerRespuestasPorEmprendimiento(Long idEmprendimiento) {
-        return valoracionRepository.obtenerRespuestasPorEmprendimiento(idEmprendimiento);
-    }
-*/
     @Override
     public Respuesta saveRespuesta(RespuestaResponseDTO respuesta){
         Formulario fm = formularioRepository.findById(respuesta.getIdFormulario().longValue()).orElse(null);

@@ -74,13 +74,6 @@ public class MetricasGeneralesServiceImpl implements MetricasGeneralesService {
     }
 
     @Override
-    public MetricasGeneralesDTO findByIdEmprendimiento(Integer id) {
-        Emprendimientos emp = emprendimientosRepository.findById(id).orElse(null);
-        MetricasGenerales metricasGenerales1 = metricasGeneralesRepository.findById(id).orElse(null);
-        return toDTO(metricasGenerales1);
-    }
-
-    @Override
     public HashMap<String, Object> findTopByOrderByVistasCategoriaDesc() {
         List<Object[]> rows = metricasGeneralesRepository.findCategoriasConVistas();
 
@@ -109,31 +102,6 @@ public class MetricasGeneralesServiceImpl implements MetricasGeneralesService {
 
         return resultado;
     }
-
-
-    public List<MetricasGeneralesDTO> findAllByFechaRegistroIsBetweenOrEmprendimientos(
-            LocalDateTime fechaRegistroAfter,
-            LocalDateTime fechaRegistroBefore,
-            Integer idEmprendimientos) {
-
-        // Caso 1: sin ningún filtro → devolver todo
-        if (fechaRegistroAfter == null && fechaRegistroBefore == null && idEmprendimientos == null) {
-            List<MetricasGenerales> todos = metricasGeneralesRepository.findAll();
-            return todos.stream().map(this::toDTO).toList();
-        }
-
-        Emprendimientos emprendimientos = null;
-        if (idEmprendimientos != null) {
-            emprendimientos = emprendimientosRepository.findById(idEmprendimientos).orElse(null);
-        }
-
-        List<MetricasGenerales> ls =
-                metricasGeneralesRepository.findByFiltrosOpcionales(
-                        fechaRegistroAfter, fechaRegistroBefore, emprendimientos);
-
-        return ls.stream().map(this::toDTO).toList();
-    }
-
 
 
     MetricasGeneralesDTO toDTO(MetricasGenerales metricasGenerales) {

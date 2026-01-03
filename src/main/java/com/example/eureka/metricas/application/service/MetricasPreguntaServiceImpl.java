@@ -2,11 +2,9 @@ package com.example.eureka.metricas.application.service;
 
 import com.example.eureka.entrepreneurship.domain.model.Emprendimientos;
 import com.example.eureka.formulario.domain.model.Pregunta;
-import com.example.eureka.metricas.domain.MetricasBasicas;
 import com.example.eureka.metricas.domain.MetricasPregunta;
 import com.example.eureka.metricas.infrastructure.dto.RankingGlobalDTO;
 import com.example.eureka.metricas.infrastructure.dto.RankingPreguntaDTO;
-import com.example.eureka.metricas.port.in.MetricasBasicasService;
 import com.example.eureka.metricas.port.in.MetricasPreguntaService;
 import com.example.eureka.metricas.port.out.IMetricasPreguntaRepository;
 import lombok.RequiredArgsConstructor;
@@ -17,7 +15,6 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 
 @Slf4j
 @Service
@@ -45,20 +42,6 @@ public class MetricasPreguntaServiceImpl implements MetricasPreguntaService {
     @Override
     public void deleteById(Integer id) {
         metricasPreguntaRepository.deleteById(id);
-    }
-
-    @Override
-    public List<MetricasPregunta> findAllByEmprendimientosAndPregunta(Emprendimientos emp, Pregunta pregunta) {
-        // solo si aún quieres devolver lista
-        return metricasPreguntaRepository.findAll().stream()
-                .filter(m -> m.getEmprendimientos().equals(emp) && m.getPregunta().equals(pregunta))
-                .toList();
-    }
-
-    @Override
-    public Optional<MetricasPregunta> findByEmprendimientosAndPregunta(Emprendimientos emp,
-                                                                       Pregunta pregunta) {
-        return metricasPreguntaRepository.findByEmprendimientosAndPregunta(emp, pregunta);
     }
 
     @Override

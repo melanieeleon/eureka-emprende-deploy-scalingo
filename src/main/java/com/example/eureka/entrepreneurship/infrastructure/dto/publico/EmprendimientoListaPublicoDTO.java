@@ -11,5 +11,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class EmprendimientoListaPublicoDTO {
 
+    private Integer idEmprendimiento;
+
     private String nombreEmprendimiento;
 }

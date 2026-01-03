@@ -9,7 +9,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 import java.util.List;
-import java.util.Optional;
 
 public interface MetricasPreguntaService {
 
@@ -17,11 +16,7 @@ public interface MetricasPreguntaService {
     List<MetricasPregunta> findAll();
     MetricasPregunta findById(Integer id);
     void deleteById(Integer id);
-    List<MetricasPregunta> findAllByEmprendimientosAndPregunta(Emprendimientos emprendimientos,
-                                                               Pregunta pregunta);
 
-    Optional<MetricasPregunta> findByEmprendimientosAndPregunta(Emprendimientos emprendimientos,
-                                                                Pregunta pregunta);
     MetricasPregunta guardarOActualizar(Emprendimientos emprendimiento,
                                         Pregunta pregunta,
                                         Double valoracion, Long cantidadRespuestasNuevas);

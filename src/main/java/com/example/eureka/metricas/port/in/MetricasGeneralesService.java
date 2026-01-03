@@ -24,10 +24,8 @@ public interface MetricasGeneralesService {
 
     MetricasGeneralesDTO findById(Integer id);
 
-    MetricasGeneralesDTO findByIdEmprendimiento(Integer id);
 
     HashMap<String, Object> findTopByOrderByVistasCategoriaDesc();
 
-    List<MetricasGeneralesDTO> findAllByFechaRegistroIsBetweenOrEmprendimientos(LocalDateTime fechaRegistroAfter, LocalDateTime fechaRegistroBefore, Integer idEmprendimientos);
 
 }

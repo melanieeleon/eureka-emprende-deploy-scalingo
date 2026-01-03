@@ -1,7 +1,5 @@
 package com.example.eureka.metricas.domain;
 
-
-
 import com.example.eureka.entrepreneurship.domain.model.Emprendimientos;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;

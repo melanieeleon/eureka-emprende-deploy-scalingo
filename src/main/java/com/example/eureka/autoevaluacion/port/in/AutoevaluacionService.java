@@ -14,11 +14,6 @@ public interface AutoevaluacionService {
 
     Respuesta findById(Long idRespuesta);
 
- /*   Page<EmprendimientoInfo> obtenerEmprendimientos(Pageable pageable);
-
-    boolean existsByEmprendimientos(Emprendimientos emprendimientos);
-
-    List<RespuestaFormularioDTO> obtenerRespuestasPorEmprendimiento(Long idEmprendimiento);*/
 
     Respuesta saveRespuesta(RespuestaResponseDTO respuesta);
 

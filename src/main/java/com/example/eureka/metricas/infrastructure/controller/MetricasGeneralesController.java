@@ -1,8 +1,5 @@
 package com.example.eureka.metricas.infrastructure.controller;
 
-
-import com.example.eureka.metricas.domain.MetricasGenerales;
-import com.example.eureka.metricas.domain.MetricasPregunta;
 import com.example.eureka.metricas.infrastructure.dto.MetricaPreguntaDTO;
 import com.example.eureka.metricas.infrastructure.dto.MetricasGeneralesDTO;
 import com.example.eureka.metricas.infrastructure.dto.RankingGlobalDTO;
@@ -17,9 +14,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDateTime;
 import java.util.HashMap;
-import java.util.List;
 
 @Slf4j
 @RestController
@@ -55,16 +50,6 @@ public class MetricasGeneralesController {
     public ResponseEntity<MetricaPreguntaDTO> menorValoracion() {
         return ResponseEntity.ok(metricasGeneralesService.findTopByOrderByNivelValoracionAsc());
     }
-
-    @GetMapping("/filtros")
-    public ResponseEntity<List<MetricasGeneralesDTO>> filtros(
-            @RequestParam(value = "fechaInicio", required = false) LocalDateTime fechaInicio,
-            @RequestParam(value = "fechaFin", required = false) LocalDateTime fechaFin,
-            @RequestParam(value = "idEmprendimiento", required = false) Integer idEmprendimiento) {
-
-        return ResponseEntity.ok(metricasGeneralesService.findAllByFechaRegistroIsBetweenOrEmprendimientos(fechaInicio, fechaFin, idEmprendimiento));
-    }
-
 
     @GetMapping("/valoracion")
     public ResponseEntity<PageResponseDTO<RankingGlobalDTO>> rankingGlobal(

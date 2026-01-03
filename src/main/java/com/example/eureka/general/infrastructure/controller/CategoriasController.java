@@ -34,8 +34,8 @@ public class CategoriasController {
         return ResponseEntity.ok(dto);
     }
 
-    @PutMapping("/actualizar/{id}")
-    public ResponseEntity<?> actualizarCategoria(@PathVariable Integer id, @RequestBody CategoriaRequestDTO categoriasDTO) {
+    @PutMapping(value = "/actualizar/{id}", consumes = "multipart/form-data")
+    public ResponseEntity<?> actualizarCategoria(@PathVariable Integer id, @ModelAttribute CategoriaRequestDTO categoriasDTO) {
         categoriaService.actualizarCategoaria(id, categoriasDTO);
         return ResponseEntity.ok().build();
     }
